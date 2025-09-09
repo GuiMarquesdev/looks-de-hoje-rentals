@@ -81,6 +81,11 @@ const CollectionSection = () => {
     window.open(`https://wa.me/5511999999999?text=${encodeURIComponent(message)}`, "_blank");
   };
 
+  const whatsappNotify = (productName: string) => {
+    const message = `Olá, gostaria de ser avisado(a) quando a peça ${productName} estiver disponível novamente.`;
+    window.open(`https://wa.me/5511999999999?text=${encodeURIComponent(message)}`, "_blank");
+  };
+
   return (
     <section id="colecao" className="py-20 bg-secondary/30">
       <div className="container mx-auto px-4">
@@ -151,14 +156,15 @@ const CollectionSection = () => {
                 {/* Overlay on hover */}
                 <div className="absolute inset-0 bg-gradient-hero opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                   <Button
-                    onClick={() => whatsappRent(product.name)}
-                    disabled={!product.available}
-                    className={`bg-gradient-gold hover:bg-primary-dark text-primary-foreground font-montserrat font-semibold px-6 py-3 rounded-full shadow-gold transition-all duration-300 ${
-                      !product.available ? "opacity-50 cursor-not-allowed" : ""
+                    onClick={() => product.available ? whatsappRent(product.name) : whatsappNotify(product.name)}
+                    className={`font-montserrat font-semibold px-6 py-3 rounded-full shadow-gold transition-all duration-300 ${
+                      product.available 
+                        ? "bg-gradient-gold hover:bg-primary-dark text-primary-foreground" 
+                        : "bg-yellow-400 hover:bg-black text-black hover:text-yellow-400 border border-yellow-400"
                     }`}
                   >
                     <MessageCircle className="w-4 h-4 mr-2" />
-                    {product.available ? "Alugar pelo WhatsApp" : "Indisponível"}
+                    {product.available ? "Alugar pelo WhatsApp" : "Me avise quando estiver disponível"}
                   </Button>
                 </div>
               </div>
@@ -176,14 +182,15 @@ const CollectionSection = () => {
                   
                   <Button
                     size="sm"
-                    onClick={() => whatsappRent(product.name)}
-                    disabled={!product.available}
-                    className={`bg-gradient-gold hover:bg-primary-dark text-primary-foreground font-montserrat font-medium px-4 py-2 rounded-full shadow-gold transition-all duration-300 ${
-                      !product.available ? "opacity-50 cursor-not-allowed" : ""
+                    onClick={() => product.available ? whatsappRent(product.name) : whatsappNotify(product.name)}
+                    className={`font-montserrat font-medium px-4 py-2 rounded-full shadow-gold transition-all duration-300 ${
+                      product.available 
+                        ? "bg-gradient-gold hover:bg-primary-dark text-primary-foreground" 
+                        : "bg-yellow-400 hover:bg-black text-black hover:text-yellow-400 border border-yellow-400"
                     }`}
                   >
                     <MessageCircle className="w-3 h-3 mr-1" />
-                    Alugar
+                    {product.available ? "Alugar" : "Me avise"}
                   </Button>
                 </div>
               </div>

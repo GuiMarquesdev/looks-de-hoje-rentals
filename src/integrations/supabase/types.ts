@@ -14,7 +14,98 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      pieces: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          id: string
+          image_url: string | null
+          name: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pieces_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_settings: {
+        Row: {
+          admin_password: string
+          created_at: string
+          email: string | null
+          id: string
+          instagram_url: string | null
+          store_name: string | null
+          updated_at: string
+          whatsapp_url: string | null
+        }
+        Insert: {
+          admin_password?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          instagram_url?: string | null
+          store_name?: string | null
+          updated_at?: string
+          whatsapp_url?: string | null
+        }
+        Update: {
+          admin_password?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          instagram_url?: string | null
+          store_name?: string | null
+          updated_at?: string
+          whatsapp_url?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

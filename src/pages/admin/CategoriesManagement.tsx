@@ -1,270 +1,329 @@
-import { useState } from "react";
-import { Plus, Edit, Trash2, FolderOpen } from "lucide-react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal, Plus, Search, Edit, Trash2, Tags } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 interface Category {
-  id: number;
+  id: string;
   name: string;
-  description: string;
-  pieceCount: number;
+  piece_count?: number;
+  created_at: string;
+  updated_at: string;
 }
 
-export default function CategoriesManagement() {
-  const { toast } = useToast();
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [newCategoryName, setNewCategoryName] = useState("");
-  const [newCategoryDescription, setNewCategoryDescription] = useState("");
+const categorySchema = z.object({
+  name: z.string().min(1, "Nome da categoria é obrigatório"),
+});
 
-  // Mock data - will be replaced with real data from backend
-  const [categories, setCategories] = useState<Category[]>([
-    {
-      id: 1,
-      name: "Vestidos",
-      description: "Vestidos para todas as ocasiões",
-      pieceCount: 45,
-    },
-    {
-      id: 2,
-      name: "Sociais",
-      description: "Peças elegantes para eventos formais",
-      pieceCount: 32,
-    },
-    {
-      id: 3,
-      name: "Festa",
-      description: "Looks especiais para celebrações",
-      pieceCount: 28,
-    },
-    {
-      id: 4,
-      name: "Frio",
-      description: "Peças para clima frio",
-      pieceCount: 22,
-    },
-    {
-      id: 5,
-      name: "Calor",
-      description: "Peças leves para clima quente",
-      pieceCount: 18,
-    },
-  ]);
+const CategoriesManagement = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
-  const addCategory = () => {
-    if (!newCategoryName.trim()) {
-      toast({
-        title: "Nome obrigatório",
-        description: "Por favor, insira um nome para a categoria.",
-        variant: "destructive",
-      });
-      return;
+  const form = useForm<z.infer<typeof categorySchema>>({
+    resolver: zodResolver(categorySchema),
+    defaultValues: {
+      name: "",
+    },
+  });
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      // Fetch categories with piece count
+      const { data: categories, error: categoriesError } = await supabase
+        .from('categories')
+        .select('*')
+        .order('name');
+
+      if (categoriesError) throw categoriesError;
+
+      // Count pieces for each category
+      const categoriesWithCount = await Promise.all(
+        (categories || []).map(async (category) => {
+          const { count } = await supabase
+            .from('pieces')
+            .select('*', { count: 'exact', head: true })
+            .eq('category_id', category.id);
+
+          return {
+            ...category,
+            piece_count: count || 0,
+          };
+        })
+      );
+
+      setCategories(categoriesWithCount);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      toast.error('Erro ao carregar categorias');
+    } finally {
+      setLoading(false);
     }
-
-    const newCategory: Category = {
-      id: Math.max(...categories.map((c) => c.id)) + 1,
-      name: newCategoryName,
-      description: newCategoryDescription,
-      pieceCount: 0,
-    };
-
-    setCategories([...categories, newCategory]);
-    setNewCategoryName("");
-    setNewCategoryDescription("");
-    setIsAddDialogOpen(false);
-
-    toast({
-      title: "Categoria adicionada",
-      description: `A categoria "${newCategory.name}" foi criada com sucesso.`,
-    });
   };
 
-  const deleteCategory = (id: number) => {
-    const category = categories.find((c) => c.id === id);
-    if (category && category.pieceCount > 0) {
-      toast({
-        title: "Não é possível excluir",
-        description:
-          "Esta categoria possui peças cadastradas. Remova as peças primeiro.",
-        variant: "destructive",
-      });
-      return;
-    }
+  const onSubmit = async (values: z.infer<typeof categorySchema>) => {
+    try {
+      if (editingCategory) {
+        // Update existing category
+        const { error } = await supabase
+          .from('categories')
+          .update({ name: values.name })
+          .eq('id', editingCategory.id);
 
-    setCategories(categories.filter((c) => c.id !== id));
-    toast({
-      title: "Categoria removida",
-      description: `A categoria "${category?.name}" foi removida.`,
-    });
+        if (error) throw error;
+        toast.success('Categoria atualizada com sucesso!');
+      } else {
+        // Create new category
+        const { error } = await supabase
+          .from('categories')
+          .insert([{ name: values.name }]);
+
+        if (error) throw error;
+        toast.success('Categoria criada com sucesso!');
+      }
+
+      setIsDialogOpen(false);
+      setEditingCategory(null);
+      form.reset();
+      fetchCategories();
+    } catch (error: any) {
+      console.error('Error saving category:', error);
+      if (error.code === '23505') {
+        toast.error('Já existe uma categoria com este nome');
+      } else {
+        toast.error('Erro ao salvar categoria');
+      }
+    }
   };
+
+  const deleteCategory = async (category: Category) => {
+    try {
+      // Check if category has pieces
+      if (category.piece_count && category.piece_count > 0) {
+        toast.error('Não é possível excluir categoria que possui peças');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('categories')
+        .delete()
+        .eq('id', category.id);
+
+      if (error) throw error;
+
+      toast.success(`Categoria "${category.name}" removida`);
+      fetchCategories();
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      toast.error('Erro ao excluir categoria');
+    }
+  };
+
+  const openEditDialog = (category: Category) => {
+    setEditingCategory(category);
+    form.reset({ name: category.name });
+    setIsDialogOpen(true);
+  };
+
+  const openAddDialog = () => {
+    setEditingCategory(null);
+    form.reset({ name: "" });
+    setIsDialogOpen(true);
+  };
+
+  const filteredCategories = categories.filter(category =>
+    category.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="animate-pulse space-y-6">
+          <div className="h-8 bg-muted rounded w-64"></div>
+          <div className="h-96 bg-muted rounded"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="p-6 space-y-6">
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-display font-bold text-foreground">
-            Gestão de Categorias
-          </h1>
-          <p className="text-muted-foreground font-body mt-2">
-            Organize suas peças em categorias
+          <h1 className="text-3xl font-playfair font-bold text-foreground">Gestão de Categorias</h1>
+          <p className="text-muted-foreground font-montserrat">
+            Organize suas peças por categorias
           </p>
         </div>
-
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="gradient-gold hover:opacity-90 font-body font-semibold">
-              <Plus className="h-4 w-4 mr-2" />
+            <Button onClick={openAddDialog} className="flex items-center gap-2 bg-primary hover:bg-primary-dark font-montserrat">
+              <Plus className="w-4 h-4" />
               Nova Categoria
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
+          <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle className="font-display">
-                Adicionar Categoria
+              <DialogTitle className="font-playfair">
+                {editingCategory ? 'Editar Categoria' : 'Nova Categoria'}
               </DialogTitle>
-              <DialogDescription className="font-body">
-                Crie uma nova categoria para organizar suas peças.
+              <DialogDescription className="font-montserrat">
+                {editingCategory ? 'Atualize o nome da categoria.' : 'Crie uma nova categoria para organizar suas peças.'}
               </DialogDescription>
             </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="font-body font-medium">
-                  Nome da Categoria
-                </Label>
-                <Input
-                  id="name"
-                  value={newCategoryName}
-                  onChange={(e) => setNewCategoryName(e.target.value)}
-                  placeholder="Ex: Vestidos de Gala"
-                  className="font-body"
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-montserrat">Nome da Categoria</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Digite o nome da categoria" {...field} className="font-montserrat" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="description" className="font-body font-medium">
-                  Descrição (opcional)
-                </Label>
-                <Input
-                  id="description"
-                  value={newCategoryDescription}
-                  onChange={(e) => setNewCategoryDescription(e.target.value)}
-                  placeholder="Breve descrição da categoria"
-                  className="font-body"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsAddDialogOpen(false)}
-                className="font-body"
-              >
-                Cancelar
-              </Button>
-              <Button
-                onClick={addCategory}
-                className="gradient-gold hover:opacity-90 font-body font-semibold"
-              >
-                Adicionar
-              </Button>
-            </DialogFooter>
+                <div className="flex justify-end gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsDialogOpen(false)}
+                    className="font-montserrat"
+                  >
+                    Cancelar
+                  </Button>
+                  <Button type="submit" className="bg-primary hover:bg-primary-dark font-montserrat">
+                    Salvar
+                  </Button>
+                </div>
+              </form>
+            </Form>
           </DialogContent>
         </Dialog>
       </div>
 
-      {/* Categories Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {categories.map((category) => (
-          <Card
-            key={category.id}
-            className="shadow-card border-0 hover:shadow-gold transition-shadow duration-300"
-          >
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <FolderOpen className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle className="font-display text-lg">
-                      {category.name}
-                    </CardTitle>
-                    <CardDescription className="font-body text-sm">
-                      {category.pieceCount} peças
-                    </CardDescription>
-                  </div>
-                </div>
-
-                <div className="flex space-x-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="hover:bg-primary/10"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => deleteCategory(category.id)}
-                    className="hover:bg-destructive/10 text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-
-            {category.description && (
-              <CardContent className="pt-0">
-                <p className="text-sm text-muted-foreground font-body">
-                  {category.description}
-                </p>
-              </CardContent>
-            )}
-          </Card>
-        ))}
-      </div>
-
-      {/* Empty State */}
-      {categories.length === 0 && (
-        <Card className="shadow-card border-0">
-          <CardContent className="flex flex-col items-center justify-center py-12">
-            <FolderOpen className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="font-display text-lg font-semibold mb-2">
-              Nenhuma categoria encontrada
-            </h3>
-            <p className="text-muted-foreground font-body text-center mb-4">
-              Comece criando sua primeira categoria para organizar as peças.
-            </p>
-            <Button
-              onClick={() => setIsAddDialogOpen(true)}
-              className="gradient-gold hover:opacity-90 font-body font-semibold"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Criar Primeira Categoria
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+      <Card className="luxury-card">
+        <CardHeader>
+          <CardTitle className="font-playfair flex items-center gap-2">
+            <Tags className="w-5 h-5 text-primary" />
+            Categorias
+          </CardTitle>
+          <div className="flex items-center space-x-2">
+            <Search className="w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar categorias..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="max-w-sm font-montserrat"
+            />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="font-montserrat">Nome</TableHead>
+                <TableHead className="font-montserrat">Quantidade de Peças</TableHead>
+                <TableHead className="text-right font-montserrat">Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredCategories.map((category) => (
+                <TableRow key={category.id}>
+                  <TableCell className="font-medium font-montserrat">{category.name}</TableCell>
+                  <TableCell>
+                    <Badge variant="secondary" className="font-montserrat">
+                      {category.piece_count} peças
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                          <span className="sr-only">Abrir menu</span>
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel className="font-montserrat">Ações</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => openEditDialog(category)} className="font-montserrat">
+                          <Edit className="mr-2 h-4 w-4" />
+                          Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => deleteCategory(category)}
+                          className="text-destructive font-montserrat"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Excluir
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {filteredCategories.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center py-8 text-muted-foreground font-montserrat">
+                    Nenhuma categoria encontrada
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
-}
+};
+
+export default CategoriesManagement;

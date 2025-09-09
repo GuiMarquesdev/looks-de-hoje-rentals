@@ -1,288 +1,323 @@
-import { useState } from "react";
-import {
-  Save,
-  Eye,
-  EyeOff,
-  Instagram,
-  MessageCircle,
-  Mail,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/hooks/use-toast";
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+import { Settings as SettingsIcon, Shield, Store, Link as LinkIcon } from 'lucide-react';
 
-export default function Settings() {
-  const { toast } = useToast();
-  const [showPassword, setShowPassword] = useState(false);
+interface StoreSettings {
+  id: string;
+  store_name: string;
+  instagram_url?: string;
+  whatsapp_url?: string;
+  email?: string;
+  admin_password: string;
+}
+
+const Settings = () => {
+  const [settings, setSettings] = useState<StoreSettings | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
-    // Admin credentials
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-
-    // Store information
-    storeName: "LooksdeHoje",
-    instagram: "@looksdeHoje",
-    whatsapp: "+55 (11) 99999-9999",
-    email: "contato@looksdeHoje.com.br",
+    store_name: '',
+    instagram_url: '',
+    whatsapp_url: '',
+    email: '',
+    current_password: '',
+    new_password: '',
+    confirm_password: '',
   });
 
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('store_settings')
+        .select('*')
+        .limit(1)
+        .single();
+
+      if (error) throw error;
+
+      setSettings(data);
+      setFormData({
+        store_name: data.store_name || '',
+        instagram_url: data.instagram_url || '',
+        whatsapp_url: data.whatsapp_url || '',
+        email: data.email || '',
+        current_password: '',
+        new_password: '',
+        confirm_password: '',
+      });
+    } catch (error) {
+      console.error('Error fetching settings:', error);
+      toast.error('Erro ao carregar configurações');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handlePasswordChange = () => {
-    if (
-      !formData.currentPassword ||
-      !formData.newPassword ||
-      !formData.confirmPassword
-    ) {
-      toast({
-        title: "Campos obrigatórios",
-        description: "Preencha todos os campos de senha.",
-        variant: "destructive",
-      });
+  const saveStoreInfo = async () => {
+    if (!settings) return;
+
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from('store_settings')
+        .update({
+          store_name: formData.store_name,
+          instagram_url: formData.instagram_url,
+          whatsapp_url: formData.whatsapp_url,
+          email: formData.email,
+        })
+        .eq('id', settings.id);
+
+      if (error) throw error;
+
+      toast.success('Informações da loja atualizadas com sucesso!');
+      fetchSettings();
+    } catch (error) {
+      console.error('Error updating store info:', error);
+      toast.error('Erro ao atualizar informações da loja');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const changePassword = async () => {
+    if (!settings) return;
+
+    if (!formData.current_password || !formData.new_password || !formData.confirm_password) {
+      toast.error('Preencha todos os campos de senha');
       return;
     }
 
-    if (formData.newPassword !== formData.confirmPassword) {
-      toast({
-        title: "Senhas não coincidem",
-        description: "A nova senha e a confirmação devem ser iguais.",
-        variant: "destructive",
-      });
+    if (formData.current_password !== settings.admin_password) {
+      toast.error('Senha atual incorreta');
       return;
     }
 
-    if (formData.newPassword.length < 6) {
-      toast({
-        title: "Senha muito fraca",
-        description: "A senha deve ter pelo menos 6 caracteres.",
-        variant: "destructive",
-      });
+    if (formData.new_password !== formData.confirm_password) {
+      toast.error('Nova senha e confirmação não coincidem');
       return;
     }
 
-    // Reset form
-    setFormData((prev) => ({
-      ...prev,
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    }));
+    if (formData.new_password.length < 6) {
+      toast.error('Nova senha deve ter pelo menos 6 caracteres');
+      return;
+    }
 
-    toast({
-      title: "Senha alterada",
-      description: "Sua senha foi alterada com sucesso.",
-    });
+    setSaving(true);
+    try {
+      const { error } = await supabase
+        .from('store_settings')
+        .update({ admin_password: formData.new_password })
+        .eq('id', settings.id);
+
+      if (error) throw error;
+
+      toast.success('Senha alterada com sucesso!');
+      setFormData(prev => ({
+        ...prev,
+        current_password: '',
+        new_password: '',
+        confirm_password: '',
+      }));
+      fetchSettings();
+    } catch (error) {
+      console.error('Error updating password:', error);
+      toast.error('Erro ao alterar senha');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleStoreInfoSave = () => {
-    toast({
-      title: "Informações salvas",
-      description: "As informações da loja foram atualizadas.",
-    });
-  };
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="animate-pulse space-y-6">
+          <div className="h-8 bg-muted rounded w-64"></div>
+          <div className="grid gap-6">
+            <div className="h-64 bg-muted rounded"></div>
+            <div className="h-64 bg-muted rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-8 max-w-4xl">
-      {/* Header */}
+    <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-display font-bold text-foreground">
-          Configurações
-        </h1>
-        <p className="text-muted-foreground font-body mt-2">
-          Gerencie as configurações do seu painel administrativo
+        <h1 className="text-3xl font-playfair font-bold text-foreground">Configurações</h1>
+        <p className="text-muted-foreground font-montserrat">
+          Gerencie as configurações da loja e sua conta
         </p>
       </div>
 
-      {/* Security Settings */}
-      <Card className="shadow-card border-0">
-        <CardHeader>
-          <CardTitle className="font-display">Segurança</CardTitle>
-          <CardDescription className="font-body">
-            Altere sua senha de acesso ao painel
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-1 max-w-md">
+      <div className="grid gap-6 max-w-2xl">
+        {/* Store Information */}
+        <Card className="luxury-card">
+          <CardHeader>
+            <CardTitle className="font-playfair flex items-center gap-2">
+              <Store className="w-5 h-5 text-primary" />
+              Informações da Loja
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label
-                htmlFor="current-password"
-                className="font-body font-medium"
-              >
-                Senha Atual
-              </Label>
-              <div className="relative">
+              <Label htmlFor="store_name" className="font-montserrat">Nome da Loja</Label>
+              <Input
+                id="store_name"
+                value={formData.store_name}
+                onChange={(e) => handleInputChange('store_name', e.target.value)}
+                placeholder="LooksdeHoje"
+                className="font-montserrat"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="email" className="font-montserrat">E-mail</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                placeholder="contato@looksdehoje.com"
+                className="font-montserrat"
+              />
+            </div>
+
+            <Separator />
+
+            <div className="space-y-4">
+              <h3 className="font-semibold font-montserrat flex items-center gap-2">
+                <LinkIcon className="w-4 h-4" />
+                Links Sociais
+              </h3>
+              
+              <div className="space-y-2">
+                <Label htmlFor="instagram_url" className="font-montserrat">Instagram</Label>
                 <Input
-                  id="current-password"
-                  type={showPassword ? "text" : "password"}
-                  value={formData.currentPassword}
-                  onChange={(e) =>
-                    handleInputChange("currentPassword", e.target.value)
-                  }
-                  className="font-body pr-10"
-                  placeholder="Digite sua senha atual"
+                  id="instagram_url"
+                  value={formData.instagram_url}
+                  onChange={(e) => handleInputChange('instagram_url', e.target.value)}
+                  placeholder="https://instagram.com/looksdehoje"
+                  className="font-montserrat"
                 />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </Button>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="whatsapp_url" className="font-montserrat">WhatsApp</Label>
+                <Input
+                  id="whatsapp_url"
+                  value={formData.whatsapp_url}
+                  onChange={(e) => handleInputChange('whatsapp_url', e.target.value)}
+                  placeholder="https://wa.me/5511999999999"
+                  className="font-montserrat"
+                />
               </div>
             </div>
 
+            <div className="flex justify-end">
+              <Button 
+                onClick={saveStoreInfo}
+                disabled={saving}
+                className="bg-primary hover:bg-primary-dark font-montserrat"
+              >
+                {saving ? 'Salvando...' : 'Salvar Informações'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Security Settings */}
+        <Card className="luxury-card">
+          <CardHeader>
+            <CardTitle className="font-playfair flex items-center gap-2">
+              <Shield className="w-5 h-5 text-primary" />
+              Segurança
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="new-password" className="font-body font-medium">
-                Nova Senha
-              </Label>
+              <Label htmlFor="current_password" className="font-montserrat">Senha Atual</Label>
               <Input
-                id="new-password"
-                type={showPassword ? "text" : "password"}
-                value={formData.newPassword}
-                onChange={(e) =>
-                  handleInputChange("newPassword", e.target.value)
-                }
-                className="font-body"
+                id="current_password"
+                type="password"
+                value={formData.current_password}
+                onChange={(e) => handleInputChange('current_password', e.target.value)}
+                placeholder="Digite sua senha atual"
+                className="font-montserrat"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="new_password" className="font-montserrat">Nova Senha</Label>
+              <Input
+                id="new_password"
+                type="password"
+                value={formData.new_password}
+                onChange={(e) => handleInputChange('new_password', e.target.value)}
                 placeholder="Digite a nova senha"
+                className="font-montserrat"
               />
             </div>
-
+            
             <div className="space-y-2">
-              <Label
-                htmlFor="confirm-password"
-                className="font-body font-medium"
-              >
-                Confirmar Nova Senha
-              </Label>
+              <Label htmlFor="confirm_password" className="font-montserrat">Confirmar Nova Senha</Label>
               <Input
-                id="confirm-password"
-                type={showPassword ? "text" : "password"}
-                value={formData.confirmPassword}
-                onChange={(e) =>
-                  handleInputChange("confirmPassword", e.target.value)
-                }
-                className="font-body"
+                id="confirm_password"
+                type="password"
+                value={formData.confirm_password}
+                onChange={(e) => handleInputChange('confirm_password', e.target.value)}
                 placeholder="Confirme a nova senha"
-              />
-            </div>
-          </div>
-
-          <Button
-            onClick={handlePasswordChange}
-            className="gradient-gold hover:opacity-90 font-body font-semibold"
-          >
-            <Save className="h-4 w-4 mr-2" />
-            Alterar Senha
-          </Button>
-        </CardContent>
-      </Card>
-
-      <Separator />
-
-      {/* Store Information */}
-      <Card className="shadow-card border-0">
-        <CardHeader>
-          <CardTitle className="font-display">Informações da Loja</CardTitle>
-          <CardDescription className="font-body">
-            Configure os dados de contato da LooksdeHoje
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="store-name" className="font-body font-medium">
-                Nome da Loja
-              </Label>
-              <Input
-                id="store-name"
-                value={formData.storeName}
-                onChange={(e) => handleInputChange("storeName", e.target.value)}
-                className="font-body"
-                placeholder="Nome da sua loja"
+                className="font-montserrat"
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="email" className="font-body font-medium">
-                E-mail de Contato
-              </Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange("email", e.target.value)}
-                  className="font-body pl-10"
-                  placeholder="seu@email.com"
-                />
-              </div>
+            <div className="flex justify-end">
+              <Button 
+                onClick={changePassword}
+                disabled={saving}
+                variant="outline"
+                className="font-montserrat"
+              >
+                {saving ? 'Alterando...' : 'Alterar Senha'}
+              </Button>
             </div>
+          </CardContent>
+        </Card>
 
-            <div className="space-y-2">
-              <Label htmlFor="instagram" className="font-body font-medium">
-                Instagram
-              </Label>
-              <div className="relative">
-                <Instagram className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="instagram"
-                  value={formData.instagram}
-                  onChange={(e) =>
-                    handleInputChange("instagram", e.target.value)
-                  }
-                  className="font-body pl-10"
-                  placeholder="@seuinstagram"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="whatsapp" className="font-body font-medium">
-                WhatsApp
-              </Label>
-              <div className="relative">
-                <MessageCircle className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="whatsapp"
-                  value={formData.whatsapp}
-                  onChange={(e) =>
-                    handleInputChange("whatsapp", e.target.value)
-                  }
-                  className="font-body pl-10"
-                  placeholder="+55 (11) 99999-9999"
-                />
-              </div>
-            </div>
-          </div>
-
-          <Button
-            onClick={handleStoreInfoSave}
-            className="gradient-gold hover:opacity-90 font-body font-semibold"
-          >
-            <Save className="h-4 w-4 mr-2" />
-            Salvar Informações
-          </Button>
-        </CardContent>
-      </Card>
+        {/* Current Configuration */}
+        <Card className="luxury-card border-muted">
+          <CardHeader>
+            <CardTitle className="font-playfair flex items-center gap-2">
+              <SettingsIcon className="w-5 h-5 text-muted-foreground" />
+              Configuração Atual
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-muted-foreground font-montserrat space-y-2">
+            <p><strong>Senha padrão:</strong> admin123</p>
+            <p><strong>Usuário padrão:</strong> admin</p>
+            <p className="text-amber-600">
+              ⚠️ Recomendamos alterar a senha padrão por segurança
+            </p>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
-}
+};
+
+export default Settings;

@@ -1,4 +1,5 @@
 import { Clock, Shield, Truck, CreditCard, CheckCircle, AlertCircle } from "lucide-react";
+import ContactChannels from "@/components/ContactChannels";
 
 const RulesSection = () => {
   const rules = [
@@ -101,20 +102,10 @@ const RulesSection = () => {
               Nossa equipe está sempre disponível para esclarecer qualquer questão sobre o processo de aluguel. 
               Entre em contato conosco pelo WhatsApp ou Instagram.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button 
-                onClick={() => window.open("https://wa.me/5511999999999?text=Olá! Tenho dúvidas sobre as regras de aluguel.", "_blank")}
-                className="inline-flex items-center justify-center px-6 py-3 bg-gradient-gold hover:bg-primary-dark text-primary-foreground font-montserrat font-semibold rounded-full shadow-gold transition-all duration-300 hover:-translate-y-0.5"
-              >
-                Falar no WhatsApp
-              </button>
-              <button 
-                onClick={() => window.open("https://instagram.com/looksdehoje", "_blank")}
-                className="inline-flex items-center justify-center px-6 py-3 border-2 border-primary text-primary hover:bg-gradient-gold hover:text-primary-foreground hover:border-transparent font-montserrat font-semibold rounded-full transition-all duration-300 hover:-translate-y-0.5"
-              >
-                Ver no Instagram
-              </button>
-            </div>
+            <ContactChannels 
+              message="Olá! Tenho dúvidas sobre as regras de aluguel."
+              size="md"
+            />
           </div>
         </div>
       </div>

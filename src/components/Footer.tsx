@@ -12,13 +12,13 @@ const Footer = () => {
     {
       name: "WhatsApp",
       icon: <MessageCircle className="w-5 h-5" />,
-      href: "https://wa.me/5511999999999",
+      href: "https://wa.me/71992771527",
       color: "hover:text-green-500"
     },
     {
       name: "Instagram",
       icon: <Instagram className="w-5 h-5" />,
-      href: "https://instagram.com/looksdehoje",
+      href: "https://www.instagram.com/looksdehojebrecho",
       color: "hover:text-pink-500"
     }
   ];
@@ -86,22 +86,22 @@ const Footer = () => {
               <div>
                 <h5 className="font-montserrat font-medium text-background mb-1">WhatsApp:</h5>
                 <a 
-                  href="https://wa.me/5511999999999"
+                  href="https://wa.me/71992771527"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-montserrat text-background/80 hover:text-primary transition-colors"
                 >
-                  (11) 99999-9999
+                  (71) 9 9277-1527
                 </a>
               </div>
               
               <div>
                 <h5 className="font-montserrat font-medium text-background mb-1">E-mail:</h5>
                 <a 
-                  href="mailto:contato@looksdehoje.com.br"
+                  href="mailto:lookdehojebrecho@gmail.com"
                   className="font-montserrat text-background/80 hover:text-primary transition-colors"
                 >
-                  contato@looksdehoje.com.br
+                  lookdehojebrecho@gmail.com
                 </a>
               </div>
               

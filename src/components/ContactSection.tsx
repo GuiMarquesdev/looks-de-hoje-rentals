@@ -1,27 +1,28 @@
 import { MapPin, Phone, Mail, Instagram, MessageCircle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import ContactChannels from "@/components/ContactChannels";
 
 const ContactSection = () => {
   const contactInfo = [
     {
       icon: <Phone className="w-6 h-6" />,
       title: "WhatsApp",
-      info: "(11) 99999-9999",
-      action: () => window.open("https://wa.me/5511999999999", "_blank"),
+      info: "(71) 9 9277-1527",
+      action: () => window.open("https://wa.me/71992771527", "_blank"),
       actionText: "Chamar no WhatsApp"
     },
     {
       icon: <Instagram className="w-6 h-6" />,
       title: "Instagram",
-      info: "@looksdehoje",
-      action: () => window.open("https://instagram.com/looksdehoje", "_blank"),
+      info: "@looksdehojebrecho",
+      action: () => window.open("https://www.instagram.com/looksdehojebrecho", "_blank"),
       actionText: "Seguir no Instagram"
     },
     {
       icon: <Mail className="w-6 h-6" />,
       title: "E-mail",
-      info: "contato@looksdehoje.com.br",
-      action: () => window.open("mailto:contato@looksdehoje.com.br", "_blank"),
+      info: "lookdehojebrecho@gmail.com",
+      action: () => window.open("mailto:lookdehojebrecho@gmail.com", "_blank"),
       actionText: "Enviar E-mail"
     }
   ];
@@ -157,23 +158,10 @@ const ContactSection = () => {
             <p className="font-montserrat text-muted-foreground mb-6">
               Entre em contato conosco agora mesmo e descubra como é fácil alugar roupas incríveis para suas ocasiões especiais.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                onClick={() => window.open("https://wa.me/5511999999999?text=Olá! Gostaria de alugar uma roupa para uma ocasião especial.", "_blank")}
-                className="bg-gradient-gold hover:bg-primary-dark text-primary-foreground font-montserrat font-semibold px-8 py-3 rounded-full shadow-gold transition-all duration-300 hover:-translate-y-0.5"
-              >
-                <MessageCircle className="w-4 h-4 mr-2" />
-                Falar no WhatsApp
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={() => window.open("https://instagram.com/looksdehoje", "_blank")}
-                className="border-2 border-primary text-primary hover:bg-gradient-gold hover:text-primary-foreground hover:border-transparent font-montserrat font-semibold px-8 py-3 rounded-full transition-all duration-300 hover:-translate-y-0.5"
-              >
-                <Instagram className="w-4 h-4 mr-2" />
-                Ver no Instagram
-              </Button>
-            </div>
+            <ContactChannels 
+              message="Olá! Gostaria de alugar uma roupa para uma ocasião especial."
+              size="lg"
+            />
           </div>
         </div>
       </div>

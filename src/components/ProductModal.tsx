@@ -1,8 +1,7 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MessageCircle, X } from 'lucide-react';
+import ContactChannels from '@/components/ContactChannels';
 
 interface ProductModalProps {
   product: {
@@ -27,14 +26,12 @@ const ProductModal: React.FC<ProductModalProps> = ({
 }) => {
   if (!product) return null;
 
-  const whatsappRent = (productName: string) => {
-    const message = `Olá! Gostaria de alugar o ${productName} do LooksdeHoje. Poderia me dar mais informações?`;
-    window.open(`https://wa.me/${whatsappUrl}?text=${encodeURIComponent(message)}`, "_blank");
-  };
-
-  const whatsappNotify = (productName: string) => {
-    const message = `Olá, gostaria de ser avisado(a) quando a peça ${productName} estiver disponível novamente.`;
-    window.open(`https://wa.me/${whatsappUrl}?text=${encodeURIComponent(message)}`, "_blank");
+  const getContactMessage = () => {
+    if (isAvailable) {
+      return `Olá! Gostaria de alugar o ${product.name} do LooksdeHoje. Poderia me dar mais informações?`;
+    } else {
+      return `Olá, gostaria de ser avisado(a) quando a peça ${product.name} estiver disponível novamente.`;
+    }
   };
 
   const isAvailable = product.status === 'available';
@@ -113,19 +110,18 @@ const ProductModal: React.FC<ProductModalProps> = ({
             )}
           </div>
 
-          {/* Action Button */}
-          <div className="flex justify-center pt-4 border-t">
-            <Button
-              onClick={() => isAvailable ? whatsappRent(product.name) : whatsappNotify(product.name)}
-              className={`font-montserrat font-semibold px-8 py-3 rounded-full shadow-gold transition-all duration-300 ${
-                isAvailable 
-                  ? "bg-gradient-gold hover:bg-primary-dark text-primary-foreground" 
-                  : "bg-yellow-400 hover:bg-black text-black hover:text-yellow-400 border border-yellow-400"
-              }`}
-            >
-              <MessageCircle className="w-4 h-4 mr-2" />
-              {isAvailable ? "Alugar pelo WhatsApp" : "Me avise quando estiver disponível"}
-            </Button>
+          {/* Action Buttons - Contact Channels */}
+          <div className="pt-6 border-t">
+            <div className="text-center mb-4">
+              <p className="font-montserrat text-muted-foreground text-sm">
+                {isAvailable ? "Entre em contato para alugar:" : "Entre em contato para ser avisado:"}
+              </p>
+            </div>
+            <ContactChannels 
+              productName={product.name}
+              message={getContactMessage()}
+              size="md"
+            />
           </div>
         </div>
       </DialogContent>

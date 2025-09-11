@@ -66,6 +66,8 @@ interface Piece {
   category?: { name: string };
   status: "available" | "rented";
   image_url?: string;
+  description?: string;
+  measurements?: Record<string, string>;
   created_at: string;
   updated_at: string;
 }
@@ -79,6 +81,8 @@ const pieceSchema = z.object({
   name: z.string().min(1, "Nome é obrigatório"),
   category_id: z.string().min(1, "Categoria é obrigatória"),
   status: z.enum(["available", "rented"]),
+  description: z.string().optional(),
+  measurements: z.record(z.string()).optional(),
   image: z.any().optional(),
 });
 
@@ -97,6 +101,8 @@ const PiecesManagement = () => {
       name: "",
       category_id: "",
       status: "available",
+      description: "",
+      measurements: {},
     },
   });
 
@@ -186,6 +192,8 @@ const PiecesManagement = () => {
         category_id: values.category_id,
         status: values.status,
         image_url: imageUrl,
+        description: values.description || null,
+        measurements: values.measurements && Object.keys(values.measurements).length > 0 ? values.measurements : null,
       };
 
       if (editingPiece) {
@@ -260,6 +268,8 @@ const PiecesManagement = () => {
       name: piece.name,
       category_id: piece.category_id,
       status: piece.status,
+      description: piece.description || "",
+      measurements: piece.measurements || {},
     });
     setIsDialogOpen(true);
   };
@@ -270,6 +280,8 @@ const PiecesManagement = () => {
       name: "",
       category_id: "",
       status: "available",
+      description: "",
+      measurements: {},
     });
     setIsDialogOpen(true);
   };
@@ -388,6 +400,71 @@ const PiecesManagement = () => {
                           onChange={(e) => field.onChange(e.target.files)}
                           className="font-montserrat"
                         />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-montserrat">Descrição</FormLabel>
+                      <FormControl>
+                        <textarea
+                          placeholder="Descrição da peça..."
+                          {...field}
+                          className="font-montserrat min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="measurements"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-montserrat">Medidas</FormLabel>
+                      <FormControl>
+                        <div className="space-y-2">
+                          <div className="grid grid-cols-2 gap-2">
+                            <Input
+                              placeholder="Busto"
+                              value={field.value?.busto || ''}
+                              onChange={(e) => field.onChange({ ...field.value, busto: e.target.value })}
+                              className="font-montserrat"
+                            />
+                            <Input
+                              placeholder="Cintura"
+                              value={field.value?.cintura || ''}
+                              onChange={(e) => field.onChange({ ...field.value, cintura: e.target.value })}
+                              className="font-montserrat"
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <Input
+                              placeholder="Quadril"
+                              value={field.value?.quadril || ''}
+                              onChange={(e) => field.onChange({ ...field.value, quadril: e.target.value })}
+                              className="font-montserrat"
+                            />
+                            <Input
+                              placeholder="Comprimento"
+                              value={field.value?.comprimento || ''}
+                              onChange={(e) => field.onChange({ ...field.value, comprimento: e.target.value })}
+                              className="font-montserrat"
+                            />
+                          </div>
+                          <Input
+                            placeholder="Tamanho (P/M/G)"
+                            value={field.value?.tamanho || ''}
+                            onChange={(e) => field.onChange({ ...field.value, tamanho: e.target.value })}
+                            className="font-montserrat"
+                          />
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>

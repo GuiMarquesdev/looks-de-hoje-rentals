@@ -44,7 +44,7 @@ const Header = () => {
             <img 
               src={logoDark}
               alt="LooksdeHoje"
-              className={`h-8 md:h-12 w-auto object-contain transition-all duration-300 ${
+              className={`h-10 md:h-14 lg:h-18 w-auto object-contain transition-all duration-300 ${
                 isScrolled ? 'opacity-100' : 'opacity-0'
               }`}
             />
@@ -52,7 +52,7 @@ const Header = () => {
             <img 
               src={logoLight}
               alt="LooksdeHoje"
-              className={`absolute top-0 left-0 h-8 md:h-12 w-auto object-contain transition-all duration-300 ${
+              className={`absolute top-0 left-0 h-10 md:h-14 lg:h-18 w-auto object-contain transition-all duration-300 ${
                 isScrolled ? 'opacity-0' : 'opacity-100'
               }`}
             />

@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Menu, X, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import logoLight from "@/assets/logo-light.png";
+import logoDark from "@/assets/logo-dark.png";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -35,10 +37,25 @@ const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div 
-            className="font-playfair text-2xl md:text-3xl font-bold text-foreground cursor-pointer hover:text-primary transition-colors"
+            className="relative cursor-pointer group"
             onClick={() => scrollToSection("inicio")}
           >
-            LooksdeHoje
+            {/* Logo for scrolled state (dark background) */}
+            <img 
+              src={logoDark}
+              alt="LooksdeHoje"
+              className={`h-8 md:h-10 w-auto transition-all duration-300 ${
+                isScrolled ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+            {/* Logo for initial state (transparent/dark background) */}
+            <img 
+              src={logoLight}
+              alt="LooksdeHoje"
+              className={`absolute top-0 left-0 h-8 md:h-10 w-auto transition-all duration-300 ${
+                isScrolled ? 'opacity-0' : 'opacity-100'
+              }`}
+            />
           </div>
 
           {/* Desktop Navigation */}

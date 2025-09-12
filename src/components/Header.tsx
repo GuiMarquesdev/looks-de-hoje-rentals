@@ -40,19 +40,19 @@ const Header = () => {
             className="relative cursor-pointer group"
             onClick={() => scrollToSection("inicio")}
           >
-            {/* Logo for scrolled state (dark background) */}
+            {/* Logo for scrolled state (white background) */}
             <img 
               src={logoDark}
               alt="LooksdeHoje"
-              className={`h-8 md:h-10 w-auto transition-all duration-300 ${
+              className={`h-8 md:h-12 w-auto object-contain transition-all duration-300 ${
                 isScrolled ? 'opacity-100' : 'opacity-0'
               }`}
             />
-            {/* Logo for initial state (transparent/dark background) */}
+            {/* Logo for initial state (transparent background) */}
             <img 
               src={logoLight}
               alt="LooksdeHoje"
-              className={`absolute top-0 left-0 h-8 md:h-10 w-auto transition-all duration-300 ${
+              className={`absolute top-0 left-0 h-8 md:h-12 w-auto object-contain transition-all duration-300 ${
                 isScrolled ? 'opacity-0' : 'opacity-100'
               }`}
             />

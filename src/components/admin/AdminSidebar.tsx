@@ -6,7 +6,8 @@ import {
   Tags, 
   Settings, 
   LogOut,
-  Crown
+  Crown,
+  Image
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAdmin } from '@/contexts/AdminContext';
@@ -27,6 +28,11 @@ const sidebarItems = [
     title: 'Categorias',
     url: '/admin/categories',
     icon: Tags,
+  },
+  {
+    title: 'Gerenciar HeroSection',
+    url: '/admin/hero',
+    icon: Image,
   },
   {
     title: 'Configurações',

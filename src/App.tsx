@@ -11,6 +11,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import PiecesManagement from "./pages/admin/PiecesManagement";
 import CategoriesManagement from "./pages/admin/CategoriesManagement";
 import Settings from "./pages/admin/Settings";
+import HeroManagement from "./pages/admin/HeroManagement";
 import AdminLayout from "./components/admin/AdminLayout";
 import { useAdmin } from "./contexts/AdminContext";
 
@@ -70,6 +71,14 @@ const App = () => (
               element={
                 <ProtectedAdminRoute>
                   <Settings />
+                </ProtectedAdminRoute>
+              } 
+            />
+            <Route 
+              path="/admin/hero" 
+              element={
+                <ProtectedAdminRoute>
+                  <HeroManagement />
                 </ProtectedAdminRoute>
               } 
             />

@@ -1,30 +1,70 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 import heroDress1 from "@/assets/hero-dress-1.jpg";
 import heroDress2 from "@/assets/hero-dress-2.jpg";
 import heroDress3 from "@/assets/hero-dress-3.jpg";
 
+interface HeroSlide {
+  id: string;
+  title: string;
+  subtitle: string;
+  image_url: string;
+}
+
 const HeroSection = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [slides, setSlides] = useState<HeroSlide[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const slides = [
+  // Slides padrão como fallback
+  const defaultSlides = [
     {
-      image: heroDress1,
+      id: "default-1",
+      image_url: heroDress1,
       title: "Elegância em Cada Ocasião",
       subtitle: "Alugue looks únicos para momentos especiais"
     },
     {
-      image: heroDress2,
+      id: "default-2",
+      image_url: heroDress2,
       title: "Estilo Sofisticado",
       subtitle: "Descubra a coleção mais exclusiva da cidade"
     },
     {
-      image: heroDress3,
+      id: "default-3",
+      image_url: heroDress3,
       title: "Luxo Acessível",
       subtitle: "Vista-se com elegância sem comprometer o orçamento"
     }
   ];
+
+  useEffect(() => {
+    fetchHeroSettings();
+  }, []);
+
+  const fetchHeroSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('hero_settings')
+        .select('*')
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data && data.slides && Array.isArray(data.slides) && data.slides.length > 0) {
+        setSlides(data.slides as unknown as HeroSlide[]);
+      } else {
+        setSlides(defaultSlides);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar configurações do hero:', error);
+      setSlides(defaultSlides);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Auto carousel
   useEffect(() => {
@@ -48,6 +88,17 @@ const HeroSection = () => {
     element?.scrollIntoView({ behavior: "smooth" });
   };
 
+  if (loading) {
+    return (
+      <section id="inicio" className="relative h-screen overflow-hidden bg-muted flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Carregando...</p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section id="inicio" className="relative h-screen overflow-hidden">
       {/* Carousel Container */}
@@ -62,7 +113,7 @@ const HeroSection = () => {
             {/* Background Image */}
             <div 
               className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-              style={{ backgroundImage: `url(${slide.image})` }}
+              style={{ backgroundImage: `url(${slide.image_url})` }}
             />
             
             {/* Overlay */}

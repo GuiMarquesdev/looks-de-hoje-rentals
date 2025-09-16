@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminStatsCard } from '@/components/admin/AdminStatsCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,6 +14,7 @@ interface Stats {
 }
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState<Stats>({ total: 0, available: 0, rented: 0 });
   const [loading, setLoading] = useState(true);
 
@@ -37,6 +39,22 @@ const AdminDashboard = () => {
       console.error('Error fetching stats:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAddPiece = () => {
+    navigate('/admin/pieces');
+  };
+
+  const handleChangeStatus = () => {
+    navigate('/admin/pieces');
+  };
+
+  const handleViewReports = () => {
+    // Mantem na própria página do dashboard que já mostra relatórios
+    const reportsSection = document.getElementById('reports-section');
+    if (reportsSection) {
+      reportsSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -97,7 +115,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div id="reports-section" className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Availability Progress */}
         <Card className="luxury-card">
           <CardHeader>
@@ -165,17 +183,26 @@ const AdminDashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 font-montserrat">
-            <div className="p-4 border border-border rounded-lg hover:bg-accent cursor-pointer transition-colors">
+            <div 
+              onClick={handleAddPiece}
+              className="p-4 border border-border rounded-lg hover:bg-accent cursor-pointer transition-colors"
+            >
               <Package className="w-8 h-8 text-primary mb-2" />
               <h3 className="font-semibold">Adicionar Peça</h3>
               <p className="text-sm text-muted-foreground">Cadastre uma nova peça no catálogo</p>
             </div>
-            <div className="p-4 border border-border rounded-lg hover:bg-accent cursor-pointer transition-colors">
+            <div 
+              onClick={handleChangeStatus}
+              className="p-4 border border-border rounded-lg hover:bg-accent cursor-pointer transition-colors"
+            >
               <CheckCircle className="w-8 h-8 text-green-600 mb-2" />
               <h3 className="font-semibold">Alterar Status</h3>
               <p className="text-sm text-muted-foreground">Marque peças como disponível/alugada</p>
             </div>
-            <div className="p-4 border border-border rounded-lg hover:bg-accent cursor-pointer transition-colors">
+            <div 
+              onClick={handleViewReports}
+              className="p-4 border border-border rounded-lg hover:bg-accent cursor-pointer transition-colors"
+            >
               <BarChart3 className="w-8 h-8 text-blue-600 mb-2" />
               <h3 className="font-semibold">Ver Relatórios</h3>
               <p className="text-sm text-muted-foreground">Acompanhe o desempenho das peças</p>

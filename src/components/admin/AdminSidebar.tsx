@@ -8,7 +8,7 @@ import {
   LogOut,
   Image
 } from 'lucide-react';
-import logoAdmin from '@/assets/logo-admin.png';
+import logoAdmin from '@/assets/logo-admin-circular.png';
 import { Button } from '@/components/ui/button';
 import { useAdmin } from '@/contexts/AdminContext';
 import { cn } from '@/lib/utils';
@@ -55,11 +55,11 @@ const AdminSidebar = () => {
       {/* Header */}
       <div className="p-6 border-b border-border">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center p-1">
+          <div className="w-10 h-10 flex items-center justify-center">
             <img 
               src={logoAdmin} 
               alt="LooksdeHoje Logo" 
-              className="w-full h-full object-contain"
+              className="w-full h-full object-contain rounded-full"
             />
           </div>
           <div>

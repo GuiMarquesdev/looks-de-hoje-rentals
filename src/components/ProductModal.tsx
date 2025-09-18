@@ -2,12 +2,14 @@ import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import ContactChannels from '@/components/ContactChannels';
+import ProductImageCarousel from '@/components/ProductImageCarousel';
 
 interface ProductModalProps {
   product: {
     id: string;
     name: string;
     image_url?: string;
+    images?: Array<{ url: string; order: number }>;
     category?: { name: string };
     status: 'available' | 'rented';
     description?: string;
@@ -46,22 +48,20 @@ const ProductModal: React.FC<ProductModalProps> = ({
         </DialogHeader>
         
         <div className="space-y-6">
-          {/* Product Image */}
-          <div className="relative aspect-[3/4] overflow-hidden rounded-lg">
-            {product.image_url ? (
-              <img
-                src={product.image_url}
-                alt={product.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-muted flex items-center justify-center">
-                <span className="text-muted-foreground">Sem imagem</span>
-              </div>
-            )}
+          {/* Product Images Carousel */}
+          <div className="relative">
+            <ProductImageCarousel
+              images={product.images && product.images.length > 0 
+                ? product.images 
+                : product.image_url 
+                  ? [{ url: product.image_url, order: 0 }] 
+                  : []
+              }
+              productName={product.name}
+            />
             
             {/* Status Badge */}
-            <div className="absolute top-4 right-4">
+            <div className="absolute top-4 right-4 z-10">
               <Badge 
                 variant={isAvailable ? "default" : "destructive"}
                 className={`font-montserrat font-semibold ${

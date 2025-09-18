@@ -9,6 +9,7 @@ interface Product {
   id: string;
   name: string;
   image_url?: string;
+  images?: Array<{ url: string; order: number }>;
   category?: { name: string };
   category_id: string;
   status: "available" | "rented";
@@ -75,7 +76,8 @@ const CollectionSection = () => {
       setProducts((piecesData || []).map(piece => ({
         ...piece,
         status: piece.status as "available" | "rented",
-        measurements: piece.measurements as Record<string, string> | undefined
+        measurements: piece.measurements as Record<string, string> | undefined,
+        images: piece.images as Array<{ url: string; order: number }> | undefined
       })));
       setCategories(categoriesData || []);
     } catch (error) {
@@ -192,17 +194,33 @@ const CollectionSection = () => {
                   >
                     {/* Product Image */}
                     <div className="relative aspect-[3/4] overflow-hidden">
-                      {product.image_url ? (
-                        <img
-                          src={product.image_url}
-                          alt={product.name}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-muted flex items-center justify-center">
-                          <span className="text-muted-foreground">Sem imagem</span>
-                        </div>
-                      )}
+                      {(() => {
+                        // Priority: images array first, then fallback to image_url
+                        const firstImage = product.images && product.images.length > 0 
+                          ? product.images.sort((a, b) => a.order - b.order)[0]
+                          : null;
+                        const imageUrl = firstImage?.url || product.image_url;
+                        
+                        return imageUrl ? (
+                          <>
+                            <img
+                              src={imageUrl}
+                              alt={product.name}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                            {/* Multiple images indicator */}
+                            {product.images && product.images.length > 1 && (
+                              <div className="absolute top-4 left-4 bg-black/70 text-white rounded-full px-2 py-1 text-xs font-montserrat">
+                                +{product.images.length} fotos
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <div className="w-full h-full bg-muted flex items-center justify-center">
+                            <span className="text-muted-foreground">Sem imagem</span>
+                          </div>
+                        );
+                      })()}
                       
                       {/* Status Badge */}
                       <div className="absolute top-4 right-4">

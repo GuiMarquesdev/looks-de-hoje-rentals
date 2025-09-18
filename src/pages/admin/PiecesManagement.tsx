@@ -58,6 +58,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import MultipleImageUpload from "@/components/admin/MultipleImageUpload";
 
 interface Piece {
   id: string;
@@ -66,6 +67,7 @@ interface Piece {
   category?: { name: string };
   status: "available" | "rented";
   image_url?: string;
+  images?: Array<{ url: string; order: number }>;
   description?: string;
   measurements?: Record<string, string>;
   created_at: string;
@@ -83,7 +85,10 @@ const pieceSchema = z.object({
   status: z.enum(["available", "rented"]),
   description: z.string().optional(),
   measurements: z.record(z.string()).optional(),
-  image: z.any().optional(),
+  images: z.array(z.object({
+    url: z.string(),
+    order: z.number()
+  })).optional(),
 });
 
 const PiecesManagement = () => {
@@ -94,6 +99,7 @@ const PiecesManagement = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPiece, setEditingPiece] = useState<Piece | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [productImages, setProductImages] = useState<Array<{ url: string; order: number; file?: File; isNew?: boolean }>>([]);
 
   const form = useForm<z.infer<typeof pieceSchema>>({
     resolver: zodResolver(pieceSchema),
@@ -175,23 +181,42 @@ const PiecesManagement = () => {
     }
   };
 
+  const uploadMultipleImages = async (images: Array<{ url: string; order: number; file?: File; isNew?: boolean }>): Promise<Array<{ url: string; order: number }>> => {
+    const processedImages: Array<{ url: string; order: number }> = [];
+    
+    for (const image of images) {
+      if (image.isNew && image.file) {
+        const uploadedUrl = await uploadImage(image.file);
+        if (uploadedUrl) {
+          processedImages.push({
+            url: uploadedUrl,
+            order: image.order
+          });
+        }
+      } else {
+        processedImages.push({
+          url: image.url,
+          order: image.order
+        });
+      }
+    }
+    
+    return processedImages;
+  };
+
   const onSubmit = async (values: z.infer<typeof pieceSchema>) => {
     try {
-      let imageUrl = editingPiece?.image_url;
+      setUploading(true);
 
-      // Upload image if provided
-      if (values.image && values.image[0]) {
-        const uploadedUrl = await uploadImage(values.image[0]);
-        if (uploadedUrl) {
-          imageUrl = uploadedUrl;
-        }
-      }
+      // Upload all images
+      const uploadedImages = await uploadMultipleImages(productImages);
 
       const pieceData = {
         name: values.name,
         category_id: values.category_id,
         status: values.status,
-        image_url: imageUrl,
+        image_url: uploadedImages.length > 0 ? uploadedImages[0].url : null,
+        images: uploadedImages,
         description: values.description || null,
         measurements: values.measurements && Object.keys(values.measurements).length > 0 ? values.measurements : null,
       };
@@ -217,11 +242,14 @@ const PiecesManagement = () => {
 
       setIsDialogOpen(false);
       setEditingPiece(null);
+      setProductImages([]);
       form.reset();
       fetchPieces();
     } catch (error) {
       console.error('Error saving piece:', error);
       toast.error('Erro ao salvar peça');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -264,6 +292,16 @@ const PiecesManagement = () => {
 
   const openEditDialog = (piece: Piece) => {
     setEditingPiece(piece);
+    
+    // Load existing images
+    const existingImages = piece.images && piece.images.length > 0 
+      ? piece.images.map(img => ({ ...img, isNew: false }))
+      : piece.image_url 
+        ? [{ url: piece.image_url, order: 0, isNew: false }]
+        : [];
+    
+    setProductImages(existingImages);
+    
     form.reset({
       name: piece.name,
       category_id: piece.category_id,
@@ -276,6 +314,7 @@ const PiecesManagement = () => {
 
   const openAddDialog = () => {
     setEditingPiece(null);
+    setProductImages([]);
     form.reset({
       name: "",
       category_id: "",
@@ -387,24 +426,14 @@ const PiecesManagement = () => {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="image"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-montserrat">Imagem</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => field.onChange(e.target.files)}
-                          className="font-montserrat"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                {/* Multiple Images Upload */}
+                <div className="space-y-4">
+                  <MultipleImageUpload
+                    images={productImages}
+                    onChange={setProductImages}
+                    maxImages={10}
+                  />
+                </div>
                 <FormField
                   control={form.control}
                   name="description"
@@ -521,17 +550,32 @@ const PiecesManagement = () => {
               {filteredPieces.map((piece) => (
                 <TableRow key={piece.id}>
                   <TableCell>
-                    {piece.image_url ? (
-                      <img
-                        src={piece.image_url}
-                        alt={piece.name}
-                        className="w-12 h-12 object-cover rounded-lg"
-                      />
-                    ) : (
-                      <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
-                        <ImageIcon className="w-6 h-6 text-muted-foreground" />
-                      </div>
-                    )}
+                    {(() => {
+                      // Priority: images array first, then fallback to image_url
+                      const firstImage = piece.images && piece.images.length > 0 
+                        ? piece.images.sort((a, b) => a.order - b.order)[0]
+                        : null;
+                      const imageUrl = firstImage?.url || piece.image_url;
+                      
+                      return imageUrl ? (
+                        <div className="relative">
+                          <img
+                            src={imageUrl}
+                            alt={piece.name}
+                            className="w-12 h-12 object-cover rounded-lg"
+                          />
+                          {piece.images && piece.images.length > 1 && (
+                            <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                              {piece.images.length}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
+                          <ImageIcon className="w-6 h-6 text-muted-foreground" />
+                        </div>
+                      );
+                    })()}
                   </TableCell>
                   <TableCell className="font-medium font-montserrat">{piece.name}</TableCell>
                   <TableCell>

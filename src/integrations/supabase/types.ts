@@ -63,6 +63,7 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          images: Json | null
           measurements: Json | null
           name: string
           status: string
@@ -74,6 +75,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          images?: Json | null
           measurements?: Json | null
           name: string
           status?: string
@@ -85,6 +87,7 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          images?: Json | null
           measurements?: Json | null
           name?: string
           status?: string

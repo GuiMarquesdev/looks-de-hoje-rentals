@@ -6,9 +6,9 @@ import {
   Tags, 
   Settings, 
   LogOut,
-  Crown,
   Image
 } from 'lucide-react';
+import logoAdmin from '@/assets/logo-admin.png';
 import { Button } from '@/components/ui/button';
 import { useAdmin } from '@/contexts/AdminContext';
 import { cn } from '@/lib/utils';
@@ -55,8 +55,12 @@ const AdminSidebar = () => {
       {/* Header */}
       <div className="p-6 border-b border-border">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-            <Crown className="w-5 h-5 text-primary-foreground" />
+          <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center p-1">
+            <img 
+              src={logoAdmin} 
+              alt="LooksdeHoje Logo" 
+              className="w-full h-full object-contain"
+            />
           </div>
           <div>
             <h1 className="font-playfair text-lg font-semibold text-foreground">

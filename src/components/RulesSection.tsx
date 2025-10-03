@@ -62,7 +62,7 @@ const RulesSection = () => {
               className="luxury-card hover-lift group p-8 text-center"
             >
               {/* Icon */}
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-gold-subtle text-primary mb-6 group-hover:scale-110 transition-transform duration-300">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-secondary/30 text-primary mb-6 group-hover:scale-110 transition-transform duration-300">
                 {rule.icon}
               </div>
 
@@ -93,7 +93,7 @@ const RulesSection = () => {
         </div>
 
         {/* Additional Info */}
-        <div className="mt-16 p-8 rounded-2xl bg-gradient-gold-subtle border border-primary/20">
+        <div className="mt-16 p-8 rounded-2xl bg-secondary/30 border border-primary/20">
           <div className="text-center max-w-4xl mx-auto">
             <h3 className="font-playfair text-2xl font-semibold text-foreground mb-4">
               Dúvidas sobre nossas regras?

@@ -111,15 +111,14 @@ const ContactSection = () => {
                     Nossa Loja
                   </h3>
                   <address className="font-montserrat text-muted-foreground not-italic leading-relaxed">
-                    Rua das Flores, 123<br />
-                    Vila Madalena, São Paulo - SP<br />
-                    CEP: 05432-000
+                    Av. Antônio Carlos Magalhães, 2501 - Brotas<br />
+                    Salvador - BA, 40280-901
                   </address>
                 </div>
               </div>
               <Button
                 className="w-full bg-gradient-gold hover:bg-primary-dark text-primary-foreground font-montserrat font-semibold py-3 rounded-full shadow-gold transition-all duration-300"
-                onClick={() => window.open("https://maps.google.com/?q=Rua+das+Flores+123+Vila+Madalena+São+Paulo", "_blank")}
+                onClick={() => window.open("https://maps.google.com/?q=Av.+Antônio+Carlos+Magalhães+2501+Brotas+Salvador+BA", "_blank")}
               >
                 <MapPin className="w-4 h-4 mr-2" />
                 Ver no Google Maps
@@ -135,7 +134,7 @@ const ContactSection = () => {
                     Localização
                   </h3>
                   <p className="font-montserrat text-sm text-muted-foreground">
-                    Vila Madalena, São Paulo
+                    Brotas, Salvador - BA
                   </p>
                 </div>
                 

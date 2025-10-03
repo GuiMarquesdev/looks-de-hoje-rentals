@@ -108,8 +108,8 @@ const Footer = () => {
               <div>
                 <h5 className="font-montserrat font-medium text-background mb-1">Endereço:</h5>
                 <address className="font-montserrat text-background/80 not-italic">
-                  Rua das Flores, 123<br />
-                  Vila Madalena, São Paulo - SP
+                  Av. Antônio Carlos Magalhães, 2501 - Brotas<br />
+                  Salvador - BA, 40280-901
                 </address>
               </div>
             </div>

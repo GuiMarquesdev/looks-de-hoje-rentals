@@ -17,7 +17,7 @@ const ContactChannels = ({
   productName
 }: ContactChannelsProps) => {
   const whatsappNumber = "71992771527";
-  const instagramUrl = "https://www.instagram.com/looksdehojebrecho";
+  const instagramUrl = "https://www.instagram.com/looksdehojebr";
   const email = "lookdehojebrecho@gmail.com";
 
   const getWhatsAppMessage = () => {

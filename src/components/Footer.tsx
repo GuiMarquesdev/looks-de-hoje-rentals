@@ -18,7 +18,7 @@ const Footer = () => {
     {
       name: "Instagram",
       icon: <Instagram className="w-5 h-5" />,
-      href: "https://www.instagram.com/looksdehojebrecho",
+      href: "https://www.instagram.com/looksdehojebr",
       color: "hover:text-pink-500"
     }
   ];

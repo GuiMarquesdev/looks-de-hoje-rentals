@@ -7,7 +7,7 @@ const ContactSection = () => {
     {
       icon: <Phone className="w-6 h-6" />,
       title: "WhatsApp",
-      info: "(71) 9 9277-1527",
+      info: "(71) 99277-1527",
       action: () => window.open("https://wa.me/71992771527", "_blank"),
       actionText: "Chamar no WhatsApp"
     },

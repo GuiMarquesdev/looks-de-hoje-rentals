@@ -91,7 +91,7 @@ const Footer = () => {
                   rel="noopener noreferrer"
                   className="font-montserrat text-background/80 hover:text-primary transition-colors"
                 >
-                  (71) 9 9277-1527
+                  (71) 99277-1527
                 </a>
               </div>
               

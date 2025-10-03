@@ -182,7 +182,7 @@ const CollectionSection = () => {
           </div>
 
           {/* Products Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-fade-in">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto animate-fade-in">
             {filteredProducts.length > 0 ? (
               filteredProducts.map((product) => {
                 const isAvailable = product.status === 'available';
@@ -256,7 +256,7 @@ const CollectionSection = () => {
                     </div>
 
                     {/* Product Info */}
-                    <div className="p-6">
+                    <div className="p-4">
                       <h3 className="font-playfair text-xl font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
                         {product.name}
                       </h3>

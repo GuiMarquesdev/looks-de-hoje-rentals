@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { MessageCircle, Filter } from "lucide-react";
+import { Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import ProductModal from "@/components/ProductModal";
+import whatsappIcon from "@/assets/whatsapp-icon.svg";
 
 interface Product {
   id: string;
@@ -249,7 +250,7 @@ const CollectionSection = () => {
                               : "bg-yellow-400 hover:bg-black text-black hover:text-yellow-400 border border-yellow-400"
                           }`}
                         >
-                          <MessageCircle className="w-4 h-4 mr-2" />
+                          <img src={whatsappIcon} alt="WhatsApp" className="w-4 h-4 mr-2" />
                           {isAvailable ? "Alugar pelo WhatsApp" : "Me avise quando estiver disponível"}
                         </Button>
                       </div>
@@ -278,7 +279,7 @@ const CollectionSection = () => {
                               : "bg-yellow-400 hover:bg-black text-black hover:text-yellow-400 border border-yellow-400"
                           }`}
                         >
-                          <MessageCircle className="w-3 h-3 mr-1" />
+                          <img src={whatsappIcon} alt="WhatsApp" className="w-3 h-3 mr-1" />
                           {isAvailable ? "Alugar" : "Me avise"}
                         </Button>
                       </div>

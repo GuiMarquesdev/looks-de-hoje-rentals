@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Menu, X, MessageCircle } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logoLight from "@/assets/logo-light.png";
 import logoDark from "@/assets/logo-dark.png";
+import whatsappIcon from "@/assets/whatsapp-icon.svg";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -92,7 +93,7 @@ const Header = () => {
               onClick={() => window.open(whatsappLink, "_blank")}
               className="hidden md:flex items-center space-x-2 bg-gradient-gold hover:bg-primary-dark text-primary-foreground font-montserrat font-semibold px-6 py-2 rounded-full shadow-gold transition-all duration-300 hover:-translate-y-0.5"
             >
-              <MessageCircle className="w-4 h-4" />
+              <img src={whatsappIcon} alt="WhatsApp" className="w-4 h-4" />
               <span>Fale pelo WhatsApp</span>
             </Button>
 
@@ -138,7 +139,7 @@ const Header = () => {
                 onClick={() => window.open(whatsappLink, "_blank")}
                 className="w-full flex items-center justify-center space-x-2 bg-gradient-gold hover:bg-primary-dark text-primary-foreground font-montserrat font-semibold px-6 py-3 rounded-full shadow-gold transition-all duration-300 mt-4"
               >
-                <MessageCircle className="w-4 h-4" />
+                <img src={whatsappIcon} alt="WhatsApp" className="w-4 h-4" />
                 <span>Fale pelo WhatsApp</span>
               </Button>
             </div>

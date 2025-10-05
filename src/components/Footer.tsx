@@ -1,4 +1,5 @@
-import { Instagram, MessageCircle, Heart } from "lucide-react";
+import { Instagram, Heart } from "lucide-react";
+import whatsappIcon from "@/assets/whatsapp-icon.svg";
 
 const Footer = () => {
   const quickLinks = [
@@ -11,7 +12,7 @@ const Footer = () => {
   const socialLinks = [
     {
       name: "WhatsApp",
-      icon: <MessageCircle className="w-5 h-5" />,
+      icon: <img src={whatsappIcon} alt="WhatsApp" className="w-5 h-5" />,
       href: "https://wa.me/71992771527",
       color: "hover:text-green-500"
     },

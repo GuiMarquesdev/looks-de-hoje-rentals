@@ -1,4 +1,4 @@
-import { MapPin, Phone, Mail, Instagram, MessageCircle, Clock } from "lucide-react";
+import { MapPin, Phone, Mail, Instagram, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ContactChannels from "@/components/ContactChannels";
 

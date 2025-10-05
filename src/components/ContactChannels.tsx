@@ -1,5 +1,6 @@
-import { Instagram, MessageCircle, Mail } from "lucide-react";
+import { Instagram, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import whatsappIcon from "@/assets/whatsapp-icon.svg";
 
 interface ContactChannelsProps {
   className?: string;
@@ -76,7 +77,7 @@ const ContactChannels = ({
         onClick={handleWhatsApp}
         className={`${buttonSizeClasses[size]} bg-green-600 hover:bg-green-700 text-white font-montserrat font-semibold rounded-full transition-all duration-300 hover:-translate-y-0.5 shadow-lg`}
       >
-        <MessageCircle className={`${iconSizeClasses[size]} mr-2`} />
+        <img src={whatsappIcon} alt="WhatsApp" className={`${iconSizeClasses[size]} mr-2`} />
         {variant === "compact" ? "" : "WhatsApp"}
       </Button>
 

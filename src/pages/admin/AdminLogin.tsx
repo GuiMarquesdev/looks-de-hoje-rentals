@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { useAdmin } from '@/contexts/AdminContext';
 import { toast } from 'sonner';
-import { Crown, Eye, EyeOff } from 'lucide-react';
+import { Crown, Eye, EyeOff, X } from 'lucide-react';
 
 const AdminLogin = () => {
   const [username, setUsername] = useState('');
@@ -43,7 +43,18 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4 relative">
+      {/* Botão para voltar */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => navigate(-1)}
+        className="absolute top-4 right-4 hover:bg-muted rounded-full"
+        aria-label="Voltar"
+      >
+        <X className="w-6 h-6" />
+      </Button>
+
       <Card className="w-full max-w-md luxury-card">
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">

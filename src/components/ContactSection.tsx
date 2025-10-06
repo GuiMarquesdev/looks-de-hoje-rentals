@@ -55,7 +55,7 @@ const ContactSection = () => {
                   key={index}
                   className="luxury-card p-6 flex items-center space-x-4 hover-lift group"
                 >
-                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-gold-subtle flex items-center justify-center text-primary group-hover:scale-110 transition-transform duration-300">
+                  <div className="flex-shrink-0 text-primary group-hover:scale-110 transition-transform duration-300">
                     {contact.icon}
                   </div>
                   <div className="flex-grow">

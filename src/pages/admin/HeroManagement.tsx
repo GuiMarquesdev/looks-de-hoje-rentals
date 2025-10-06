@@ -7,33 +7,27 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import { Plus, X, Upload, Eye, GripVertical } from 'lucide-react';
-
 interface HeroSlide {
   id: string;
   title: string;
   subtitle: string;
   image_url: string;
 }
-
 const HeroManagement = () => {
   const [slides, setSlides] = useState<HeroSlide[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
-
   useEffect(() => {
     fetchHeroSettings();
   }, []);
-
   const fetchHeroSettings = async () => {
     try {
-      const { data, error } = await supabase
-        .from('hero_settings')
-        .select('*')
-        .maybeSingle();
-
+      const {
+        data,
+        error
+      } = await supabase.from('hero_settings').select('*').maybeSingle();
       if (error) throw error;
-
       if (data && data.slides && Array.isArray(data.slides)) {
         setSlides(data.slides as unknown as HeroSlide[]);
       }
@@ -42,60 +36,58 @@ const HeroManagement = () => {
       toast({
         title: "Erro",
         description: "Erro ao carregar configurações do hero",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
   };
-
   const saveHeroSettings = async () => {
     setSaving(true);
     try {
       // First try to get existing record
-      const { data: existingData } = await supabase
-        .from('hero_settings')
-        .select('id')
-        .maybeSingle();
-
+      const {
+        data: existingData
+      } = await supabase.from('hero_settings').select('id').maybeSingle();
       if (existingData?.id) {
         // Update existing record
-        const { error } = await supabase
-          .from('hero_settings')
-          .update({ slides: slides as any })
-          .eq('id', existingData.id);
+        const {
+          error
+        } = await supabase.from('hero_settings').update({
+          slides: slides as any
+        }).eq('id', existingData.id);
         if (error) throw error;
       } else {
         // Insert new record
-        const { error } = await supabase
-          .from('hero_settings')
-          .insert({ slides: slides as any });
+        const {
+          error
+        } = await supabase.from('hero_settings').insert({
+          slides: slides as any
+        });
         if (error) throw error;
       }
-
       toast({
         title: "Sucesso",
-        description: "Alterações aplicadas com sucesso!",
+        description: "Alterações aplicadas com sucesso!"
       });
     } catch (error) {
       console.error('Erro ao salvar configurações:', error);
       toast({
         title: "Erro",
         description: "Erro ao salvar alterações",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setSaving(false);
     }
   };
-
   const handleSlideUpdate = (index: number, field: keyof HeroSlide, value: string) => {
-    const updatedSlides = slides.map((slide, i) => 
-      i === index ? { ...slide, [field]: value } : slide
-    );
+    const updatedSlides = slides.map((slide, i) => i === index ? {
+      ...slide,
+      [field]: value
+    } : slide);
     setSlides(updatedSlides);
   };
-
   const addSlide = () => {
     const newSlide: HeroSlide = {
       id: `slide-${Date.now()}`,
@@ -105,19 +97,16 @@ const HeroManagement = () => {
     };
     setSlides([...slides, newSlide]);
   };
-
   const removeSlide = (index: number) => {
     const updatedSlides = slides.filter((_, i) => i !== index);
     setSlides(updatedSlides);
   };
-
   const moveSlide = (fromIndex: number, toIndex: number) => {
     const newSlides = [...slides];
     const [movedSlide] = newSlides.splice(fromIndex, 1);
     newSlides.splice(toIndex, 0, movedSlide);
     setSlides(newSlides);
   };
-
   const uploadImage = async (file: File, slideIndex: number) => {
     if (!file) return;
 
@@ -127,71 +116,61 @@ const HeroManagement = () => {
       toast({
         title: "Erro",
         description: "Formato de arquivo não suportado. Use JPG, PNG ou WEBP.",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
-    if (file.size > 5 * 1024 * 1024) { // 5MB
+    if (file.size > 5 * 1024 * 1024) {
+      // 5MB
       toast({
         title: "Erro",
         description: "Arquivo muito grande. Máximo 5MB.",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     setUploadingIndex(slideIndex);
     try {
       const fileExt = file.name.split('.').pop();
       const fileName = `hero-${Date.now()}.${fileExt}`;
-      
-      const { data, error } = await supabase.storage
-        .from('hero-images')
-        .upload(fileName, file);
-
+      const {
+        data,
+        error
+      } = await supabase.storage.from('hero-images').upload(fileName, file);
       if (error) throw error;
-
-      const { data: publicUrlData } = supabase.storage
-        .from('hero-images')
-        .getPublicUrl(data.path);
-
+      const {
+        data: publicUrlData
+      } = supabase.storage.from('hero-images').getPublicUrl(data.path);
       handleSlideUpdate(slideIndex, 'image_url', publicUrlData.publicUrl);
-
       toast({
         title: "Sucesso",
-        description: "Imagem enviada com sucesso!",
+        description: "Imagem enviada com sucesso!"
       });
     } catch (error) {
       console.error('Erro no upload:', error);
       toast({
         title: "Erro",
         description: "Erro ao enviar imagem",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setUploadingIndex(null);
     }
   };
-
   if (loading) {
-    return (
-      <div className="p-6">
+    return <div className="p-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
             <p className="text-muted-foreground">Carregando...</p>
           </div>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="p-6 space-y-6 font-montserrat">
+  return <div className="p-6 space-y-6 font-montserrat">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold font-playfair">Gerenciar HeroSection</h1>
+          <h1 className="text-3xl font-bold font-playfair">Gerenciar Vitrine da Loja</h1>
           <p className="text-muted-foreground">
             Gerencie os textos e imagens do carrossel principal do site
           </p>
@@ -208,37 +187,20 @@ const HeroManagement = () => {
       </div>
 
       <div className="grid gap-6">
-        {slides.map((slide, index) => (
-          <Card key={slide.id} className="luxury-card">
+        {slides.map((slide, index) => <Card key={slide.id} className="luxury-card">
             <CardHeader className="flex flex-row items-center justify-between">
               <div className="flex items-center gap-2">
                 <GripVertical className="w-4 h-4 text-muted-foreground cursor-move" />
                 <CardTitle className="text-lg">Slide {index + 1}</CardTitle>
               </div>
               <div className="flex gap-2">
-                {index > 0 && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => moveSlide(index, index - 1)}
-                  >
+                {index > 0 && <Button variant="outline" size="sm" onClick={() => moveSlide(index, index - 1)}>
                     ↑
-                  </Button>
-                )}
-                {index < slides.length - 1 && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => moveSlide(index, index + 1)}
-                  >
+                  </Button>}
+                {index < slides.length - 1 && <Button variant="outline" size="sm" onClick={() => moveSlide(index, index + 1)}>
                     ↓
-                  </Button>
-                )}
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => removeSlide(index)}
-                >
+                  </Button>}
+                <Button variant="destructive" size="sm" onClick={() => removeSlide(index)}>
                   <X className="w-4 h-4" />
                 </Button>
               </div>
@@ -248,76 +210,48 @@ const HeroManagement = () => {
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor={`title-${index}`}>Título Principal</Label>
-                    <Input
-                      id={`title-${index}`}
-                      value={slide.title}
-                      onChange={(e) => handleSlideUpdate(index, 'title', e.target.value)}
-                      placeholder="Digite o título..."
-                    />
+                    <Input id={`title-${index}`} value={slide.title} onChange={e => handleSlideUpdate(index, 'title', e.target.value)} placeholder="Digite o título..." />
                   </div>
                   <div>
                     <Label htmlFor={`subtitle-${index}`}>Subtítulo</Label>
-                    <Textarea
-                      id={`subtitle-${index}`}
-                      value={slide.subtitle}
-                      onChange={(e) => handleSlideUpdate(index, 'subtitle', e.target.value)}
-                      placeholder="Digite o subtítulo..."
-                      rows={3}
-                    />
+                    <Textarea id={`subtitle-${index}`} value={slide.subtitle} onChange={e => handleSlideUpdate(index, 'subtitle', e.target.value)} placeholder="Digite o subtítulo..." rows={3} />
                   </div>
                   <div>
                     <Label>Imagem</Label>
                     <div className="flex gap-2">
-                      <Input
-                        type="file"
-                        accept="image/jpeg,image/jpg,image/png,image/webp"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) uploadImage(file, index);
-                        }}
-                        disabled={uploadingIndex === index}
-                      />
-                      {uploadingIndex === index && (
-                        <div className="flex items-center">
+                      <Input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (file) uploadImage(file, index);
+                  }} disabled={uploadingIndex === index} />
+                      {uploadingIndex === index && <div className="flex items-center">
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                        </div>
-                      )}
+                        </div>}
                     </div>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label>Preview da Imagem</Label>
-                  {slide.image_url ? (
-                    <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
-                      <img
-                        src={slide.image_url}
-                        alt={slide.title}
-                        className="w-full h-full object-cover"
-                      />
+                  {slide.image_url ? <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
+                      <img src={slide.image_url} alt={slide.title} className="w-full h-full object-cover" />
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-center p-4">
                         <div>
                           <h3 className="text-lg font-bold mb-2">{slide.title}</h3>
                           <p className="text-sm">{slide.subtitle}</p>
                         </div>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
+                    </div> : <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
                       <div className="text-center text-muted-foreground">
                         <Upload className="w-8 h-8 mx-auto mb-2" />
                         <p>Nenhuma imagem selecionada</p>
                       </div>
-                    </div>
-                  )}
+                    </div>}
                 </div>
               </div>
             </CardContent>
-          </Card>
-        ))}
+          </Card>)}
       </div>
 
-      {slides.length === 0 && (
-        <Card className="p-12 text-center">
+      {slides.length === 0 && <Card className="p-12 text-center">
           <div className="text-muted-foreground">
             <Eye className="w-12 h-12 mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">Nenhum slide configurado</h3>
@@ -327,10 +261,7 @@ const HeroManagement = () => {
               Adicionar Primeiro Slide
             </Button>
           </div>
-        </Card>
-      )}
-    </div>
-  );
+        </Card>}
+    </div>;
 };
-
 export default HeroManagement;

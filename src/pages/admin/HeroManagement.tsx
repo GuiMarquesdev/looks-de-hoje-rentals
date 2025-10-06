@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { Plus, X, Upload, Eye, GripVertical } from 'lucide-react';
+import { ImageFramingTool } from '@/components/admin/ImageFramingTool';
 
 interface HeroSlide {
   id: string;
@@ -16,6 +17,9 @@ interface HeroSlide {
   image_url: string;
   image_fit?: 'cover' | 'contain' | 'fill' | 'none';
   image_position?: string;
+  image_position_x?: number; // 0-100 percentage
+  image_position_y?: number; // 0-100 percentage
+  image_zoom?: number; // 100-200 percentage
 }
 const HeroManagement = () => {
   const [slides, setSlides] = useState<HeroSlide[]>([]);
@@ -86,10 +90,22 @@ const HeroManagement = () => {
     }
   };
   const handleSlideUpdate = (index: number, field: keyof HeroSlide, value: string) => {
-    const updatedSlides = slides.map((slide, i) => i === index ? {
-      ...slide,
-      [field]: value
-    } : slide);
+    const updatedSlides = slides.map((slide, i) => {
+      if (i === index) {
+        // Handle numeric fields
+        if (field === 'image_position_x' || field === 'image_position_y' || field === 'image_zoom') {
+          return {
+            ...slide,
+            [field]: parseFloat(value)
+          };
+        }
+        return {
+          ...slide,
+          [field]: value
+        };
+      }
+      return slide;
+    });
     setSlides(updatedSlides);
   };
   const addSlide = () => {
@@ -99,7 +115,10 @@ const HeroManagement = () => {
       subtitle: 'Nova descrição',
       image_url: '',
       image_fit: 'cover',
-      image_position: 'center'
+      image_position: 'center',
+      image_position_x: 50,
+      image_position_y: 50,
+      image_zoom: 100
     };
     setSlides([...slides, newSlide]);
   };
@@ -212,97 +231,102 @@ const HeroManagement = () => {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-4">
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor={`title-${index}`}>Título Principal</Label>
+                  <Input id={`title-${index}`} value={slide.title} onChange={e => handleSlideUpdate(index, 'title', e.target.value)} placeholder="Digite o título..." />
+                </div>
+                <div>
+                  <Label htmlFor={`subtitle-${index}`}>Subtítulo</Label>
+                  <Textarea id={`subtitle-${index}`} value={slide.subtitle} onChange={e => handleSlideUpdate(index, 'subtitle', e.target.value)} placeholder="Digite o subtítulo..." rows={3} />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor={`title-${index}`}>Título Principal</Label>
-                    <Input id={`title-${index}`} value={slide.title} onChange={e => handleSlideUpdate(index, 'title', e.target.value)} placeholder="Digite o título..." />
-                  </div>
-                  <div>
-                    <Label htmlFor={`subtitle-${index}`}>Subtítulo</Label>
-                    <Textarea id={`subtitle-${index}`} value={slide.subtitle} onChange={e => handleSlideUpdate(index, 'subtitle', e.target.value)} placeholder="Digite o subtítulo..." rows={3} />
+                    <Label htmlFor={`image-fit-${index}`}>Ajuste da Imagem</Label>
+                    <Select 
+                      value={slide.image_fit || 'cover'} 
+                      onValueChange={(value) => handleSlideUpdate(index, 'image_fit' as keyof HeroSlide, value)}
+                    >
+                      <SelectTrigger id={`image-fit-${index}`}>
+                        <SelectValue placeholder="Selecione o ajuste" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="cover">Cobrir (Cover)</SelectItem>
+                        <SelectItem value="contain">Conter (Contain)</SelectItem>
+                        <SelectItem value="fill">Preencher (Fill)</SelectItem>
+                        <SelectItem value="none">Original (None)</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor={`image-fit-${index}`}>Ajuste da Imagem</Label>
-                      <Select 
-                        value={slide.image_fit || 'cover'} 
-                        onValueChange={(value) => handleSlideUpdate(index, 'image_fit' as keyof HeroSlide, value)}
-                      >
-                        <SelectTrigger id={`image-fit-${index}`}>
-                          <SelectValue placeholder="Selecione o ajuste" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="cover">Cobrir (Cover)</SelectItem>
-                          <SelectItem value="contain">Conter (Contain)</SelectItem>
-                          <SelectItem value="fill">Preencher (Fill)</SelectItem>
-                          <SelectItem value="none">Original (None)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor={`image-position-${index}`}>Posição da Imagem</Label>
-                      <Select 
-                        value={slide.image_position || 'center'} 
-                        onValueChange={(value) => handleSlideUpdate(index, 'image_position' as keyof HeroSlide, value)}
-                      >
-                        <SelectTrigger id={`image-position-${index}`}>
-                          <SelectValue placeholder="Selecione a posição" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="center">Centro</SelectItem>
-                          <SelectItem value="top">Topo</SelectItem>
-                          <SelectItem value="bottom">Baixo</SelectItem>
-                          <SelectItem value="left">Esquerda</SelectItem>
-                          <SelectItem value="right">Direita</SelectItem>
-                          <SelectItem value="top left">Topo Esquerda</SelectItem>
-                          <SelectItem value="top right">Topo Direita</SelectItem>
-                          <SelectItem value="bottom left">Baixo Esquerda</SelectItem>
-                          <SelectItem value="bottom right">Baixo Direita</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
                   <div>
-                    <Label>Imagem</Label>
-                    <div className="flex gap-2">
-                      <Input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" onChange={e => {
-                    const file = e.target.files?.[0];
-                    if (file) uploadImage(file, index);
-                  }} disabled={uploadingIndex === index} />
-                      {uploadingIndex === index && <div className="flex items-center">
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
-                        </div>}
-                    </div>
+                    <Label htmlFor={`image-position-${index}`}>Posição da Imagem</Label>
+                    <Select 
+                      value={slide.image_position || 'center'} 
+                      onValueChange={(value) => handleSlideUpdate(index, 'image_position' as keyof HeroSlide, value)}
+                    >
+                      <SelectTrigger id={`image-position-${index}`}>
+                        <SelectValue placeholder="Selecione a posição" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="center">Centro</SelectItem>
+                        <SelectItem value="top">Topo</SelectItem>
+                        <SelectItem value="bottom">Baixo</SelectItem>
+                        <SelectItem value="left">Esquerda</SelectItem>
+                        <SelectItem value="right">Direita</SelectItem>
+                        <SelectItem value="top left">Topo Esquerda</SelectItem>
+                        <SelectItem value="top right">Topo Direita</SelectItem>
+                        <SelectItem value="bottom left">Baixo Esquerda</SelectItem>
+                        <SelectItem value="bottom right">Baixo Direita</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label>Preview em Tempo Real</Label>
-                  {slide.image_url ? <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
-                      <img 
-                        src={slide.image_url} 
-                        alt={slide.title} 
-                        className="w-full h-full"
-                        style={{
-                          objectFit: slide.image_fit || 'cover',
-                          objectPosition: slide.image_position || 'center'
-                        }}
-                      />
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-center p-4">
-                        <div>
-                          <h3 className="text-lg font-bold mb-2">{slide.title}</h3>
-                          <p className="text-sm">{slide.subtitle}</p>
+
+                <div>
+                  <Label>Imagem</Label>
+                  <div className="flex gap-2">
+                    <Input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (file) uploadImage(file, index);
+                }} disabled={uploadingIndex === index} />
+                    {uploadingIndex === index && <div className="flex items-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                      </div>}
+                  </div>
+                </div>
+                
+                {/* Ferramenta de enquadramento interativo */}
+                <div>
+                  {slide.image_url ? (
+                    <ImageFramingTool
+                      imageUrl={slide.image_url}
+                      positionX={slide.image_position_x ?? 50}
+                      positionY={slide.image_position_y ?? 50}
+                      zoom={slide.image_zoom ?? 100}
+                      onPositionChange={(x, y) => {
+                        handleSlideUpdate(index, 'image_position_x' as keyof HeroSlide, String(x));
+                        handleSlideUpdate(index, 'image_position_y' as keyof HeroSlide, String(y));
+                      }}
+                      onZoomChange={(zoom) => {
+                        handleSlideUpdate(index, 'image_zoom' as keyof HeroSlide, String(zoom));
+                      }}
+                      title={slide.title}
+                      subtitle={slide.subtitle}
+                    />
+                  ) : (
+                    <div>
+                      <Label>Preview em Tempo Real</Label>
+                      <div className="aspect-video bg-muted rounded-lg flex items-center justify-center mt-2">
+                        <div className="text-center text-muted-foreground">
+                          <Upload className="w-8 h-8 mx-auto mb-2" />
+                          <p>Nenhuma imagem selecionada</p>
+                          <p className="text-xs mt-1">Faça upload de uma imagem para usar a ferramenta de enquadramento</p>
                         </div>
                       </div>
-                    </div> : <div className="aspect-video bg-muted rounded-lg flex items-center justify-center">
-                      <div className="text-center text-muted-foreground">
-                        <Upload className="w-8 h-8 mx-auto mb-2" />
-                        <p>Nenhuma imagem selecionada</p>
-                      </div>
-                    </div>}
+                    </div>
+                  )}
                 </div>
               </div>
             </CardContent>

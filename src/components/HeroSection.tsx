@@ -13,6 +13,9 @@ interface HeroSlide {
   image_url: string;
   image_fit?: 'cover' | 'contain' | 'fill' | 'none';
   image_position?: string;
+  image_position_x?: number;
+  image_position_y?: number;
+  image_zoom?: number;
 }
 
 const HeroSection = () => {
@@ -117,8 +120,12 @@ const HeroSection = () => {
               className="absolute inset-0 bg-no-repeat"
               style={{ 
                 backgroundImage: `url(${slide.image_url})`,
-                backgroundSize: slide.image_fit || 'cover',
-                backgroundPosition: slide.image_position || 'center'
+                backgroundSize: slide.image_zoom 
+                  ? `${slide.image_zoom}%` 
+                  : (slide.image_fit || 'cover'),
+                backgroundPosition: (slide.image_position_x !== undefined && slide.image_position_y !== undefined)
+                  ? `${slide.image_position_x}% ${slide.image_position_y}%`
+                  : (slide.image_position || 'center')
               }}
             />
             

@@ -357,7 +357,7 @@ const PiecesManagement = () => {
               Adicionar Peça
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-[95vw] sm:max-w-[500px] md:max-w-[600px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="font-playfair">
                 {editingPiece ? 'Editar Peça' : 'Nova Peça'}

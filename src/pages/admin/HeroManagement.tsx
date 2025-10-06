@@ -5,13 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
 import { Plus, X, Upload, Eye, GripVertical } from 'lucide-react';
+
 interface HeroSlide {
   id: string;
   title: string;
   subtitle: string;
   image_url: string;
+  image_fit?: 'cover' | 'contain' | 'fill' | 'none';
+  image_position?: string;
 }
 const HeroManagement = () => {
   const [slides, setSlides] = useState<HeroSlide[]>([]);
@@ -93,7 +97,9 @@ const HeroManagement = () => {
       id: `slide-${Date.now()}`,
       title: 'Novo Título',
       subtitle: 'Nova descrição',
-      image_url: ''
+      image_url: '',
+      image_fit: 'cover',
+      image_position: 'center'
     };
     setSlides([...slides, newSlide]);
   };
@@ -216,6 +222,50 @@ const HeroManagement = () => {
                     <Label htmlFor={`subtitle-${index}`}>Subtítulo</Label>
                     <Textarea id={`subtitle-${index}`} value={slide.subtitle} onChange={e => handleSlideUpdate(index, 'subtitle', e.target.value)} placeholder="Digite o subtítulo..." rows={3} />
                   </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor={`image-fit-${index}`}>Ajuste da Imagem</Label>
+                      <Select 
+                        value={slide.image_fit || 'cover'} 
+                        onValueChange={(value) => handleSlideUpdate(index, 'image_fit' as keyof HeroSlide, value)}
+                      >
+                        <SelectTrigger id={`image-fit-${index}`}>
+                          <SelectValue placeholder="Selecione o ajuste" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="cover">Cobrir (Cover)</SelectItem>
+                          <SelectItem value="contain">Conter (Contain)</SelectItem>
+                          <SelectItem value="fill">Preencher (Fill)</SelectItem>
+                          <SelectItem value="none">Original (None)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor={`image-position-${index}`}>Posição da Imagem</Label>
+                      <Select 
+                        value={slide.image_position || 'center'} 
+                        onValueChange={(value) => handleSlideUpdate(index, 'image_position' as keyof HeroSlide, value)}
+                      >
+                        <SelectTrigger id={`image-position-${index}`}>
+                          <SelectValue placeholder="Selecione a posição" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="center">Centro</SelectItem>
+                          <SelectItem value="top">Topo</SelectItem>
+                          <SelectItem value="bottom">Baixo</SelectItem>
+                          <SelectItem value="left">Esquerda</SelectItem>
+                          <SelectItem value="right">Direita</SelectItem>
+                          <SelectItem value="top left">Topo Esquerda</SelectItem>
+                          <SelectItem value="top right">Topo Direita</SelectItem>
+                          <SelectItem value="bottom left">Baixo Esquerda</SelectItem>
+                          <SelectItem value="bottom right">Baixo Direita</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
                   <div>
                     <Label>Imagem</Label>
                     <div className="flex gap-2">
@@ -230,9 +280,17 @@ const HeroManagement = () => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Preview da Imagem</Label>
+                  <Label>Preview em Tempo Real</Label>
                   {slide.image_url ? <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
-                      <img src={slide.image_url} alt={slide.title} className="w-full h-full object-cover" />
+                      <img 
+                        src={slide.image_url} 
+                        alt={slide.title} 
+                        className="w-full h-full"
+                        style={{
+                          objectFit: slide.image_fit || 'cover',
+                          objectPosition: slide.image_position || 'center'
+                        }}
+                      />
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-center p-4">
                         <div>
                           <h3 className="text-lg font-bold mb-2">{slide.title}</h3>

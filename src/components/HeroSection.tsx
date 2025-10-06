@@ -11,6 +11,8 @@ interface HeroSlide {
   title: string;
   subtitle: string;
   image_url: string;
+  image_fit?: 'cover' | 'contain' | 'fill' | 'none';
+  image_position?: string;
 }
 
 const HeroSection = () => {
@@ -112,8 +114,12 @@ const HeroSection = () => {
           >
             {/* Background Image */}
             <div 
-              className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-              style={{ backgroundImage: `url(${slide.image_url})` }}
+              className="absolute inset-0 bg-no-repeat"
+              style={{ 
+                backgroundImage: `url(${slide.image_url})`,
+                backgroundSize: slide.image_fit || 'cover',
+                backgroundPosition: slide.image_position || 'center'
+              }}
             />
             
             {/* Overlay */}

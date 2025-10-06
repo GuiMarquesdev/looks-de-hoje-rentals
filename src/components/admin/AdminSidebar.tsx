@@ -96,7 +96,7 @@ const AdminSidebar = () => {
       </nav>
 
       {/* Logout */}
-      <div className="p-4 border-t border-border">
+      <div className="sticky bottom-0 p-4 border-t border-border bg-card">
         <Button
           onClick={handleLogout}
           variant="ghost"

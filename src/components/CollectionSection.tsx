@@ -163,7 +163,7 @@ const CollectionSection = () => {
               <button
                 key={category.id}
                 onClick={() => setActiveCategory(category.id)}
-                className={`inline-flex items-center px-6 py-3 rounded-full font-montserrat font-medium transition-all duration-300 hover:-translate-y-0.5 ${
+                className={`inline-flex items-center px-4 py-2 rounded-full font-montserrat font-medium transition-all duration-300 hover:-translate-y-0.5 ${
                   activeCategory === category.id
                     ? "bg-gradient-gold text-primary-foreground shadow-gold"
                     : "bg-background text-foreground hover:bg-muted border border-border"

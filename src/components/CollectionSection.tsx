@@ -11,6 +11,9 @@ interface Product {
   name: string;
   image_url?: string;
   images?: Array<{ url: string; order: number }>;
+  image_position_x?: number;
+  image_position_y?: number;
+  image_zoom?: number;
   category?: { name: string };
   category_id: string;
   status: "available" | "rented";
@@ -204,10 +207,14 @@ const CollectionSection = () => {
                         
                         return imageUrl ? (
                           <>
-                            <img
-                              src={imageUrl}
-                              alt={product.name}
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            <div 
+                              className="w-full h-full transition-transform duration-500 group-hover:scale-105"
+                              style={{
+                                backgroundImage: `url(${imageUrl})`,
+                                backgroundSize: `${product.image_zoom ?? 100}%`,
+                                backgroundPosition: `${product.image_position_x ?? 50}% ${product.image_position_y ?? 50}%`,
+                                backgroundRepeat: 'no-repeat',
+                              }}
                             />
                             {/* Multiple images indicator */}
                             {product.images && product.images.length > 1 && (

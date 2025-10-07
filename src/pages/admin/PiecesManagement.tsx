@@ -59,6 +59,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import MultipleImageUpload from "@/components/admin/MultipleImageUpload";
+import { ImageFramingTool } from "@/components/admin/ImageFramingTool";
 
 interface Piece {
   id: string;
@@ -68,6 +69,9 @@ interface Piece {
   status: "available" | "rented";
   image_url?: string;
   images?: Array<{ url: string; order: number }>;
+  image_position_x?: number;
+  image_position_y?: number;
+  image_zoom?: number;
   description?: string;
   measurements?: Record<string, string>;
   created_at: string;
@@ -100,6 +104,9 @@ const PiecesManagement = () => {
   const [editingPiece, setEditingPiece] = useState<Piece | null>(null);
   const [uploading, setUploading] = useState(false);
   const [productImages, setProductImages] = useState<Array<{ url: string; order: number; file?: File; isNew?: boolean }>>([]);
+  const [imagePositionX, setImagePositionX] = useState(50);
+  const [imagePositionY, setImagePositionY] = useState(50);
+  const [imageZoom, setImageZoom] = useState(100);
 
   const form = useForm<z.infer<typeof pieceSchema>>({
     resolver: zodResolver(pieceSchema),
@@ -217,6 +224,9 @@ const PiecesManagement = () => {
         status: values.status,
         image_url: uploadedImages.length > 0 ? uploadedImages[0].url : null,
         images: uploadedImages,
+        image_position_x: imagePositionX,
+        image_position_y: imagePositionY,
+        image_zoom: imageZoom,
         description: values.description || null,
         measurements: values.measurements && Object.keys(values.measurements).length > 0 ? values.measurements : null,
       };
@@ -243,6 +253,9 @@ const PiecesManagement = () => {
       setIsDialogOpen(false);
       setEditingPiece(null);
       setProductImages([]);
+      setImagePositionX(50);
+      setImagePositionY(50);
+      setImageZoom(100);
       form.reset();
       fetchPieces();
     } catch (error) {
@@ -301,6 +314,9 @@ const PiecesManagement = () => {
         : [];
     
     setProductImages(existingImages);
+    setImagePositionX(piece.image_position_x ?? 50);
+    setImagePositionY(piece.image_position_y ?? 50);
+    setImageZoom(piece.image_zoom ?? 100);
     
     form.reset({
       name: piece.name,
@@ -315,6 +331,9 @@ const PiecesManagement = () => {
   const openAddDialog = () => {
     setEditingPiece(null);
     setProductImages([]);
+    setImagePositionX(50);
+    setImagePositionY(50);
+    setImageZoom(100);
     form.reset({
       name: "",
       category_id: "",
@@ -434,6 +453,25 @@ const PiecesManagement = () => {
                     maxImages={10}
                   />
                 </div>
+
+                {/* Image Framing Tool - Only show if there's at least one image */}
+                {productImages.length > 0 && productImages[0].url && (
+                  <div className="space-y-2">
+                    <ImageFramingTool
+                      imageUrl={productImages[0].url}
+                      positionX={imagePositionX}
+                      positionY={imagePositionY}
+                      zoom={imageZoom}
+                      onPositionChange={(x, y) => {
+                        setImagePositionX(x);
+                        setImagePositionY(y);
+                      }}
+                      onZoomChange={setImageZoom}
+                      title="Ajuste do Enquadramento"
+                      subtitle="Esta será a imagem principal da peça"
+                    />
+                  </div>
+                )}
                 <FormField
                   control={form.control}
                   name="description"

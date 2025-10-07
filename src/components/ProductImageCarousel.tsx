@@ -15,12 +15,18 @@ interface ProductImage {
 interface ProductImageCarouselProps {
   images: ProductImage[];
   productName: string;
+  imagePositionX?: number;
+  imagePositionY?: number;
+  imageZoom?: number;
   className?: string;
 }
 
 const ProductImageCarousel: React.FC<ProductImageCarouselProps> = ({ 
   images, 
-  productName, 
+  productName,
+  imagePositionX = 50,
+  imagePositionY = 50,
+  imageZoom = 100,
   className = "" 
 }) => {
   // Sort images by order
@@ -39,10 +45,14 @@ const ProductImageCarousel: React.FC<ProductImageCarouselProps> = ({
   if (sortedImages.length === 1) {
     return (
       <div className={`relative aspect-[3/4] overflow-hidden rounded-lg ${className}`}>
-        <img
-          src={sortedImages[0].url}
-          alt={productName}
-          className="w-full h-full object-cover"
+        <div 
+          className="w-full h-full"
+          style={{
+            backgroundImage: `url(${sortedImages[0].url})`,
+            backgroundSize: `${imageZoom}%`,
+            backgroundPosition: `${imagePositionX}% ${imagePositionY}%`,
+            backgroundRepeat: 'no-repeat',
+          }}
         />
       </div>
     );
@@ -55,10 +65,14 @@ const ProductImageCarousel: React.FC<ProductImageCarouselProps> = ({
           {sortedImages.map((image, index) => (
             <CarouselItem key={index}>
               <div className="relative aspect-[3/4] overflow-hidden rounded-lg">
-                <img
-                  src={image.url}
-                  alt={`${productName} - Imagem ${index + 1}`}
-                  className="w-full h-full object-cover"
+                <div 
+                  className="w-full h-full"
+                  style={{
+                    backgroundImage: `url(${image.url})`,
+                    backgroundSize: index === 0 ? `${imageZoom}%` : '100%',
+                    backgroundPosition: index === 0 ? `${imagePositionX}% ${imagePositionY}%` : 'center center',
+                    backgroundRepeat: 'no-repeat',
+                  }}
                 />
               </div>
             </CarouselItem>

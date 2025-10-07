@@ -10,6 +10,9 @@ interface ProductModalProps {
     name: string;
     image_url?: string;
     images?: Array<{ url: string; order: number }>;
+    image_position_x?: number;
+    image_position_y?: number;
+    image_zoom?: number;
     category?: { name: string };
     status: 'available' | 'rented';
     description?: string;
@@ -58,6 +61,9 @@ const ProductModal: React.FC<ProductModalProps> = ({
                   : []
               }
               productName={product.name}
+              imagePositionX={product.image_position_x}
+              imagePositionY={product.image_position_y}
+              imageZoom={product.image_zoom}
             />
             
             {/* Status Badge */}

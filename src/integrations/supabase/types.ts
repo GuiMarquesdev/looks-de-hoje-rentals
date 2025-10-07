@@ -62,7 +62,10 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
+          image_position_x: number | null
+          image_position_y: number | null
           image_url: string | null
+          image_zoom: number | null
           images: Json | null
           measurements: Json | null
           name: string
@@ -74,7 +77,10 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          image_position_x?: number | null
+          image_position_y?: number | null
           image_url?: string | null
+          image_zoom?: number | null
           images?: Json | null
           measurements?: Json | null
           name: string
@@ -86,7 +92,10 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
+          image_position_x?: number | null
+          image_position_y?: number | null
           image_url?: string | null
+          image_zoom?: number | null
           images?: Json | null
           measurements?: Json | null
           name?: string

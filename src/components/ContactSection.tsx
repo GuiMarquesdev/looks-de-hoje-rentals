@@ -14,7 +14,7 @@ const ContactSection = () => {
     {
       icon: <Instagram className="w-6 h-6" />,
       title: "Instagram",
-      info: "@looksdehojebr",
+      info: "@looksdehojebrecho",
       action: () => window.open("https://www.instagram.com/looksdehojebr", "_blank"),
       actionText: "Seguir no Instagram"
     },

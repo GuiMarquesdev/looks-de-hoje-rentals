@@ -55,7 +55,7 @@ const AdminLogin = () => {
         <X className="w-6 h-6" />
       </Button>
 
-      <Card className="w-full max-w-md luxury-card">
+      <Card className="w-full max-w-md luxury-card border-2 border-border/50 shadow-2xl">
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
             <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center">

@@ -84,7 +84,9 @@ interface Category {
 }
 
 const pieceSchema = z.object({
-  name: z.string().min(1, "Nome é obrigatório"),
+  name: z.string()
+    .min(1, "Nome é obrigatório")
+    .max(60, "Nome deve ter no máximo 60 caracteres"),
   category_id: z.string().min(1, "Categoria é obrigatória"),
   status: z.enum(["available", "rented"]),
   description: z.string().optional(),

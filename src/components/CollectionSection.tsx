@@ -265,7 +265,7 @@ const CollectionSection = () => {
 
                     {/* Product Info */}
                     <div className="p-4">
-                      <h3 className="font-playfair text-xl font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                      <h3 className="font-playfair text-xl font-semibold text-foreground mb-2 group-hover:text-primary transition-colors line-clamp-2 min-h-[3.5rem]">
                         {product.name}
                       </h3>
                       

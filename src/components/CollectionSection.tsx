@@ -193,7 +193,7 @@ const CollectionSection = () => {
                 return (
                   <div
                     key={product.id}
-                    className="luxury-card hover-lift group overflow-hidden cursor-pointer"
+                    className="luxury-card hover-lift group overflow-hidden cursor-pointer border-2 border-border/50 shadow-lg hover:shadow-2xl hover:border-primary/30 transition-all duration-300"
                     onClick={() => openProductModal(product)}
                   >
                     {/* Product Image */}

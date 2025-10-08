@@ -133,8 +133,8 @@ const HeroSection = () => {
             <div className="absolute inset-0 hero-overlay" />
             
             {/* Content */}
-            <div className="relative z-10 h-full flex items-center justify-center text-center px-4">
-              <div className="max-w-4xl mx-auto animate-fade-in">
+            <div className="relative z-10 h-full flex items-center justify-center text-center px-4 py-20 md:py-24">
+              <div className="max-w-4xl mx-auto animate-fade-in -mt-12 md:-mt-16">
                 <h1 className="font-playfair text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
                   {slide.title}
                 </h1>
